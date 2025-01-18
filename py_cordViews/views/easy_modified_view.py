@@ -1,10 +1,9 @@
 from discord import Interaction, ApplicationContext, Message
 from discord.ui import View, Item
-from typing import Union, Callable, Coroutine
+from typing import Union, Callable, Coroutine, Iterable
 
-from py_cordViews.typeViews import T_views
+from ..typeViews import T_views
 from .errors import CustomIDNotFound
-
 
 
 class EasyModifiedViews(View):
@@ -34,14 +33,14 @@ class EasyModifiedViews(View):
         if custom_id not in self.__callback.keys():
             raise CustomIDNotFound()
 
-    async def respond(self, ctx: ApplicationContext, *args, **kwargs):
+    async def respond(self, ctx: ApplicationContext, *args, **kwargs) -> None:
         """
         Respond at the ApplicationContext
         """
         self.__ctx = await ctx.respond(*args, **kwargs)
 
     def add_items(self,
-                   *items: T_views) -> None:
+                   *items: T_views) -> "EasyModifiedViews":
         """
         Add all items in the View.
         custom_id REQUIRED !
@@ -52,7 +51,9 @@ class EasyModifiedViews(View):
             self.__callback[ui.custom_id] = {'ui': ui, 'func': None}
             self.add_item(ui)
 
-    async def update_items(self, *items: T_views):
+        return self
+
+    async def update_items(self, *items: T_views) -> "EasyModifiedViews":
         """
         Update all views.
         Append items if custom_ids not in the view
@@ -70,6 +71,7 @@ class EasyModifiedViews(View):
                 self.add_items(item)
 
         await self.__update()
+        return self
 
     def set_callable_decorator(self, custom_id: str):
         """
@@ -98,15 +100,16 @@ class EasyModifiedViews(View):
 
         return decorator
 
-    def set_callable(self, custom_id: str, coroutine: Coroutine):
+    def set_callable(self, *custom_ids: str, coroutine: Coroutine):
         """
         set up a coroutine for items
-        :param custom_id: items ID of the view
+        :param custom_ids: items IDs of the view
         :param coroutine: The coroutine linked
 
         **Interaction parameter is required in coroutine function !**
 
         view = EasyModifiedViews(None)
+
         view.add_view(discord.ui.Button(label='coucou', custom_id='test_ID'))
 
         async def rep(**interaction**):
@@ -115,15 +118,15 @@ class EasyModifiedViews(View):
         view.set_callable(custom_id='test_ID', coroutine=rep)
         await ctx.respond('coucou', view=view)
         """
-        self.__check_custom_id(custom_id)
+        for custom_id in custom_ids:
+            self.__check_custom_id(custom_id)
 
-        self.__callback[custom_id]['func'] = coroutine
+            self.__callback[custom_id]['func'] = coroutine
 
     async def interaction_check(self, interaction: Interaction) -> bool:
         """
         Func to apply items
         """
-        print(self.__callback[interaction.custom_id])
         await self.__callback[interaction.custom_id]['func'](interaction)
 
         return True
@@ -135,15 +138,72 @@ class EasyModifiedViews(View):
         self.disable_all_items()
         await self.__update()
 
-    async def disable_item(self, *custom_ids: str):
+    async def disable_items(self, *custom_ids: str) -> None:
         """
         Disable partial items in the view
         :param custom_ids: custom ids of all items to deactivate
         """
 
         self.disable_all_items(exclusions=[self.get_item(id_) for id_ in self.__callback.keys() if id_ not in custom_ids])
+        await self.__update()
 
-    async def delete_items(self, clear_all: bool = False, *custom_ids: str):
+    async def enable_items(self, *custom_ids: str) -> None:
+        """
+        Enabl partial items in the view
+        :param custom_ids: custom ids of all items to activate
+        """
+        self.enable_all_items(
+            exclusions=[self.get_item(id_) for id_ in self.__callback.keys() if id_ not in custom_ids])
+        await self.__update()
+
+    async def full_enable_items(self) -> None:
+        """
+        Enable all items in the view
+        """
+        self.enable_all_items()
+        await self.__update()
+
+
+    async def switch_status_items(self):
+        """
+        Switch status for all items
+        Enable -> Disable
+        Disable -> Enable
+        """
+
+        for key, in self.__callback.keys():
+            self.__callback[key]['ui'].disabled = not self.__callback[key]['ui'].disabled
+
+        await self.__update()
+
+
+    def is_items_disabled(self, *custom_ids: str) -> bool:
+        """
+        Return True if all items are disabled
+        """
+
+        for custom_id in custom_ids:
+            self.__check_custom_id(custom_id)
+            if not self.__callback[custom_id]['ui'].disabled:
+                return False
+
+        return True
+
+
+    def is_items_enabled(self, *custom_ids: str) -> bool:
+        """
+        Return True il aff items are enabled
+        """
+
+        for custom_id in custom_ids:
+            self.__check_custom_id(custom_id)
+            if self.__callback[custom_id]['ui'].disabled:
+                return False
+
+        return True
+
+
+    async def delete_items(self, clear_all: bool = False, *custom_ids: str) -> None:
         """
         Delete an item on the view
         :param custom_ids: IDs of items to delete
@@ -168,7 +228,7 @@ class EasyModifiedViews(View):
         if self.__disabled_on_timeout:
             self.shutdown()
 
-    async def __update(self):
+    async def __update(self) -> None:
         """
         Update the View on the attached message.
         """
