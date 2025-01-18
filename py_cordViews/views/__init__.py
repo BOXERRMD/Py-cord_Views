@@ -1,2 +1,2 @@
-from .easy_modified_buttons import EasyModifiedViews
+from .easy_modified_view import EasyModifiedViews
 from .errors import *
