@@ -1,5 +1,5 @@
 from ..views.easy_modified_view import EasyModifiedViews
-from discord import ButtonStyle, Interaction
+from discord import ButtonStyle, Interaction, TextChannel, Member, ApplicationContext
 from discord.ui import Button
 from .errors import PageNumberNotFound
 
@@ -27,31 +27,32 @@ class Pagination:
         self.__view.add_items(Button(label='⏭', row=0, custom_id='forward+', style=ButtonStyle.blurple))
         self.__view.set_callable('back+', 'back', 'forward', 'forward+', coroutine=self.__turn_page)
 
-        self.__pages: dict[str, tuple[tuple[Any, ...], dict]] = {}
-        self.__current_page: int = 1
-
+        self.__pages: list[tuple[tuple, dict]] = []
+        self.__current_page: int = 0
 
     def add_page(self, *args, **kwargs) -> None:
         """
-        Adds a page as if this function directly sent the message
-        """
-        self.__pages[str(len(self.__pages)+1)] = (args, kwargs)
+        Adds a page (in a list) as if this function directly sent the message
+        Pages are just modified and not reset ! Don't forget to disable embeds or content if the page don't need this.
 
-    def delete_pages(self, *page_numbers: Union[str, int]): ######################## A FINIR, il supprime la bonne page mais cela décale les autres car les pages sont parqué par les clé du dict
+        add_page(content="my message", embeds=[embed1, embed2], ...)
+        """
+        self.__pages.append((args, kwargs))
+
+    def delete_pages(self, *page_numbers: Union[str, int]):
         """
         Deletes pages in the order in which they were added
+        **Start to 0 !**
+
+        delete_pages(1,2,3,...)
         """
+        nbr_pages = len(self.__pages)-1
         for page_number in page_numbers:
-            number = str(page_number)
-            if number not in self.__pages.keys():
-                raise PageNumberNotFound(number)
 
-            del self.__pages[number]
+            if page_number < 0 or page_number > nbr_pages:
+                raise PageNumberNotFound(page_number)
 
-        for page in self.__pages.keys(): # if faut arriver à combler les trous laissé par la suppression si possible
-            self.__pages[page]
-
-
+            del self.__pages[page_number]
 
     async def __turn_page(self, interaction: Interaction):
         """
@@ -67,16 +68,16 @@ class Pagination:
             # Update the current page based on the button pressed
 
         if interaction.custom_id == 'back+':  # Go to the first page
-            self.__current_page = 1
+            self.__current_page = 0
 
         elif interaction.custom_id == 'back':  # Go to the previous page
-            self.__current_page = max(1, self.__current_page - 1)
+            self.__current_page = max(0, self.__current_page - 1)
 
         elif interaction.custom_id == 'forward':  # Go to the next page
-            self.__current_page = min(page_count, self.__current_page + 1)
+            self.__current_page = min(page_count-1, self.__current_page + 1)
 
         elif interaction.custom_id == 'forward+':  # Go to the last page
-            self.__current_page = page_count
+            self.__current_page = page_count-1
 
 
         await interaction.message.edit(
@@ -89,6 +90,20 @@ class Pagination:
 
         # Acknowledge the interaction
         await interaction.response.defer(invisible=True)
+
+    async def send(self, send_to: Union[Member, TextChannel]) -> None:
+        """
+        Send pagination without introduction message.
+        :param send_to: The member or channel to send the pagination
+        """
+
+        await send_to.send(*self.__pages[0][0], **self.__pages[0][1], view=self.get_view)
+
+    async def respond(self, ctx: ApplicationContext) -> None:
+        """
+        Respond to the command call
+        """
+        await ctx.respond(*self.__pages[0][0], **self.__pages[0][1], view=self.get_view)
 
     @property
     def get_view(self) -> EasyModifiedViews:

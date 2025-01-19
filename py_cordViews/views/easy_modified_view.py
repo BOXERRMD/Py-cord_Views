@@ -127,7 +127,13 @@ class EasyModifiedViews(View):
         """
         Func to apply items
         """
-        await self.__callback[interaction.custom_id]['func'](interaction)
+        func = self.__callback[interaction.custom_id]['func']
+
+        if func is not None:
+            await func(interaction)
+
+        else:
+            await interaction.response.defer(invisible=True)
 
         return True
 

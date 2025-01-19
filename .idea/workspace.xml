@@ -6,11 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="88fa8df9-7cb6-45b5-89e7-f6133c57728d" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/py_cordViews/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/py_cordViews/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/py_cordViews/pagination/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/py_cordViews/pagination/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/py_cordViews/views/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/py_cordViews/views/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/py_cordViews/pagination/pagination_view.py" beforeDir="false" afterPath="$PROJECT_DIR$/py_cordViews/pagination/pagination_view.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/py_cordViews/views/easy_modified_view.py" beforeDir="false" afterPath="$PROJECT_DIR$/py_cordViews/views/easy_modified_view.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/py_cordViews/views/errors.py" beforeDir="false" afterPath="$PROJECT_DIR$/py_cordViews/views/errors.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -38,14 +35,14 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Python.__init__.executor": "Run",
-    "Python.test.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "pagination"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Python.__init__.executor&quot;: &quot;Run&quot;,
+    &quot;Python.test.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;pagination&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager">
     <configuration name="test" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Py-cord_Views" />
@@ -98,7 +95,7 @@
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/py_cordViews/pagination/pagination_view.py</url>
-          <line>59</line>
+          <line>56</line>
           <option name="timeStamp" value="1" />
         </line-breakpoint>
       </breakpoints>
