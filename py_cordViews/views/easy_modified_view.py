@@ -70,7 +70,7 @@ class EasyModifiedViews(View):
             except CustomIDNotFound:
                 self.add_items(item)
 
-        await self.__update()
+        await self._update()
         return self
 
     def set_callable_decorator(self, custom_id: str):
@@ -142,7 +142,7 @@ class EasyModifiedViews(View):
         Disable all items (ui) in the view
         """
         self.disable_all_items()
-        await self.__update()
+        await self._update()
 
     async def disable_items(self, *custom_ids: str) -> None:
         """
@@ -151,7 +151,7 @@ class EasyModifiedViews(View):
         """
 
         self.disable_all_items(exclusions=[self.get_item(id_) for id_ in self.__callback.keys() if id_ not in custom_ids])
-        await self.__update()
+        await self._update()
 
     async def enable_items(self, *custom_ids: str) -> None:
         """
@@ -160,14 +160,14 @@ class EasyModifiedViews(View):
         """
         self.enable_all_items(
             exclusions=[self.get_item(id_) for id_ in self.__callback.keys() if id_ not in custom_ids])
-        await self.__update()
+        await self._update()
 
     async def full_enable_items(self) -> None:
         """
         Enable all items in the view
         """
         self.enable_all_items()
-        await self.__update()
+        await self._update()
 
 
     async def switch_status_items(self):
@@ -180,7 +180,7 @@ class EasyModifiedViews(View):
         for key, in self.__callback.keys():
             self.__callback[key]['ui'].disabled = not self.__callback[key]['ui'].disabled
 
-        await self.__update()
+        await self._update()
 
 
     def is_items_disabled(self, *custom_ids: str) -> bool:
@@ -225,7 +225,7 @@ class EasyModifiedViews(View):
                 self.__check_custom_id(custom_id)
                 self.remove_item(self.get_item(custom_id))
 
-        await self.__update()
+        await self._update()
 
     def on_timeout(self) -> None:
         """
@@ -234,7 +234,7 @@ class EasyModifiedViews(View):
         if self.__disabled_on_timeout:
             self.shutdown()
 
-    async def __update(self) -> None:
+    async def _update(self) -> None:
         """
         Update the View on the attached message.
         """
