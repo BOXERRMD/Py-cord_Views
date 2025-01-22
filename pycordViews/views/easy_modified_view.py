@@ -238,11 +238,16 @@ class EasyModifiedViews(View):
         """
         Update the View on the attached message.
         """
-        if self.message:
-            await self.message.edit(view=self)
+        try:
 
-        else:
-            await self.__ctx.edit(view=self)
+            if self.message:
+                await self.message.edit(view=self)
+
+            else:
+                await self.__ctx.edit(view=self)
+
+        except:
+            pass
 
     @property
     def get_uis(self) -> list[T_views]:

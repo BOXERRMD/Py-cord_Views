@@ -5,7 +5,7 @@ with open("README.md") as file:
 
 setup(
     name="PycordViews",
-    version="1.0.1",
+    version="1.0.2",
     url="https://github.com/BOXERRMD/Py-cord_Views",
     author="Chronos (alias BOXERRMD)",
     author_email="vagabonwalybi@gmail.com",
