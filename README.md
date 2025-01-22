@@ -24,4 +24,6 @@ async def pagination_command(ctx):
 
     await pages.respond(ctx=ctx) # respond to the command
     await pages.send(send_to=ctx.author) # send the message to the command author
+
+bot.run("Your token")
 ```

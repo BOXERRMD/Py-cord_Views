@@ -1,0 +1,62 @@
+Metadata-Version: 2.2
+Name: PycordViews
+Version: 1.0.0
+Summary: Views for py-cord library
+Home-page: https://github.com/BOXERRMD/Py-cord_Views
+Author: Chronos (alias BOXERRMD)
+Author-email: vagabonwalybi@gmail.com
+Maintainer: Chronos
+License: MIT License
+Classifier: Development Status :: 3 - Alpha
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Natural Language :: English
+Classifier: Operating System :: Microsoft :: Windows :: Windows 11
+Classifier: Operating System :: Microsoft :: Windows :: Windows 10
+Classifier: Operating System :: POSIX :: Linux
+Classifier: Operating System :: MacOS
+Classifier: Programming Language :: Python :: 3.9
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: py-cord==2.6.1
+Dynamic: author
+Dynamic: author-email
+Dynamic: classifier
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: home-page
+Dynamic: license
+Dynamic: maintainer
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary
+
+# Py-cord_Views
+ Views for py-cord library
+
+```python
+from pycordViews.pagination import Pagination
+import discord
+
+intents = discord.Intents.all()
+bot = discord.AutoShardedBot(intents=intents)
+
+@bot.command(name="My command paginator", description="...")
+async def pagination_command(ctx):
+    """
+    Create a command pagination
+    """
+    pages: Pagination = Pagination(timeout=None, disabled_on_timeout=False)
+    
+    pages.add_page(content="It's my first page !!", embed=None)# reset embed else he show the embed of the page after
+    
+    embed = discord.Embed(title="My embed title", description="..........")
+    pages.add_page(content=None, embed=embed) # reset content else he show the content of the page before
+
+    pages.add_page(content="My last page !", embed=None)# reset embed else he show the embed of the page before
+
+    await pages.respond(ctx=ctx) # respond to the command
+    await pages.send(send_to=ctx.author) # send the message to the command author
+
+bot.run("Your token")
+```
