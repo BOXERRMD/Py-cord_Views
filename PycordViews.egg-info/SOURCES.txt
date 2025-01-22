@@ -9,3 +9,15 @@ PycordViews.egg-info/requires.txt
 PycordViews.egg-info/top_level.txt
 pycordViews/__init__.py
 pycordViews/typeViews.py
+pycordViews/pagination/__init__.py
+pycordViews/pagination/errors.py
+pycordViews/pagination/pagination_view.py
+pycordViews/views/__init__.py
+pycordViews/views/easy_modified_view.py
+pycordViews/views/errors.py
+pycordViews/pagination/__init__.py
+pycordViews/pagination/errors.py
+pycordViews/pagination/pagination_view.py
+pycordViews/views/__init__.py
+pycordViews/views/easy_modified_view.py
+pycordViews/views/errors.py

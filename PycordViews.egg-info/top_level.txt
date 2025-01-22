@@ -1,1 +1,3 @@
 pycordViews
+pycordViews/pagination
+pycordViews/views
