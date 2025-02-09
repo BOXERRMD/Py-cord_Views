@@ -44,7 +44,7 @@ class Pagination:
         Deletes pages in the order in which they were added
         **Start to 0 !**
 
-        delete_pages(1,2,3,...)
+        delete_pages(0,1,2,3,...)
         """
         nbr_pages = len(self.__pages)-1
         for page_number in page_numbers:
