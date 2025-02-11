@@ -1,9 +1,8 @@
 from discord import AutoShardedBot, Bot
 from random import choice
 from string import ascii_letters
-from typing import Any
-from asyncio import set_event_loop, new_event_loop, create_task, sleep, run
-from multiprocessing.connection import Connection
+from asyncio import set_event_loop, new_event_loop, sleep, run, create_task
+from multiprocessing import Queue
 
 from .errors import *
 from .runner import Runner
@@ -12,7 +11,7 @@ from .process_messages import ProcessMessage
 
 class ProcessBot:
 
-    def __init__(self, children: Connection, limit_bots_in_tread: int = -1):
+    def __init__(self, queue_parent: Queue, queue_children: Queue, limit_bots_in_tread: int = -1):
         """
         Class to manage process and thread
         """
@@ -21,35 +20,35 @@ class ProcessBot:
 
         self.__limit_bots_in_tread: int = limit_bots_in_tread
 
-        self.__children = children
+        self.__queue_parent: Queue = queue_parent
+        self.__queue_children: Queue = queue_children
         self.__loop = None
-        self.run_process()
+        run(self.run_process())
 
-    def run_process(self):
+    async def run_process(self):
         """
         Function run with the process
         """
-        self.__loop = new_event_loop()  # Create a new event loop
-        set_event_loop(self.__loop)  # Set the event loop
-        self.__loop.run_until_complete(self.__message_process_receiver())  # Run the process
+        await create_task(self.__message_process_receiver())  # Run the process
 
     async def __message_process_receiver(self):
         """
         Wait message from parent process (always a dict with the key "parent_message")
         """
         while True:
-            if self.__children.poll():
-                message = self.__children.recv()
-                await self.__decode_message(message)
-            else:
-                await sleep(0.1)
+            await sleep(0.02)
+            while not self.__queue_children.empty():
+                try:
+                    message = self.__queue_children.get_nowait()
+                    await self.__decode_message(message)
+                except:
+                    break
 
     def __message_process_sender(self, message: dict):
         """
         Send a message to parent process
         """
-        self.__children: Connection
-        self.__children.send(message)
+        self.__queue_parent.put(message)
 
     async def __decode_message(self, message: dict):
         """
@@ -75,6 +74,7 @@ class ProcessBot:
         :param kwargs: all kwargs of the Discord class Bot
         See : https://docs.pycord.dev/en/stable/api/clients.html#discord.Bot
         """
+        print(f"Ajout du bot {name} avec le token {token}")
         if name is None:
             name = ''.join([choice(ascii_letters) for _ in range(20)])
 
@@ -88,6 +88,7 @@ class ProcessBot:
                                      'token': token,
                                      'thread': None}
 
+        print(f"Envoi de la réponse 'coucou' pour {name}")
         self.__message_process_sender({'children_message': "coucou"})
 
 
