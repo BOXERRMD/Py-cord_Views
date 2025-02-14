@@ -135,7 +135,7 @@ class EasyModifiedViews(View):
         func = self.__callback[interaction.custom_id]['func']
 
         if func is not None:
-            await func(self.__callback[interaction.custom_id]['ui'], interaction)
+            return await func(self.__callback[interaction.custom_id]['ui'], interaction)
 
         else:
             await interaction.response.defer(invisible=True)
