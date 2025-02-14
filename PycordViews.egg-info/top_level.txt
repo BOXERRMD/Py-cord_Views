@@ -1,5 +1,0 @@
-pycordViews
-pycordViews/menu
-pycordViews/multibot
-pycordViews/pagination
-pycordViews/views

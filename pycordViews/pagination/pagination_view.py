@@ -30,7 +30,7 @@ class Pagination:
         self.__pages: list[tuple[tuple, dict]] = []
         self.__current_page: int = 0
 
-    def add_page(self, *args, **kwargs) -> None:
+    def add_page(self, *args, **kwargs) -> "Pagination":
         """
         Adds a page (in a list) as if this function directly sent the message
         Pages are just modified and not reset ! Don't forget to disable embeds or content if the page don't need this.
@@ -38,8 +38,9 @@ class Pagination:
         add_page(content="my message", embeds=[embed1, embed2], ...)
         """
         self.__pages.append((args, kwargs))
+        return self
 
-    def delete_pages(self, *page_numbers: Union[str, int]):
+    def delete_pages(self, *page_numbers: Union[str, int]) -> "Pagination":
         """
         Deletes pages in the order in which they were added
         **Start to 0 !**
@@ -53,6 +54,7 @@ class Pagination:
                 raise PageNumberNotFound(page_number)
 
             del self.__pages[page_number]
+        return self
 
     async def __turn_page(self, button, interaction: Interaction):
         """
@@ -91,18 +93,18 @@ class Pagination:
         # Acknowledge the interaction
         await interaction.response.defer(invisible=True)
 
-    async def send(self, target: Union[Member, TextChannel]) -> None:
+    async def send(self, target: Union[Member, TextChannel]) -> Any:
         """
         Send pagination without introduction message.
         :param target: The member or channel to send the pagination
         """
-        await self.__view.send(ctx=target, *self.__pages[0][0], **self.__pages[0][1], view=self.get_view)
+        return await self.__view.send(ctx=target, *self.__pages[0][0], **self.__pages[0][1], view=self.get_view)
 
-    async def respond(self, ctx: ApplicationContext) -> None:
+    async def respond(self, ctx: ApplicationContext) -> Any:
         """
         Respond to the command call
         """
-        await self.__view.respond(ctx=ctx, *self.__pages[0][0], **self.__pages[0][1], view=self.get_view)
+        return await self.__view.respond(ctx=ctx, *self.__pages[0][0], **self.__pages[0][1], view=self.get_view)
 
     @property
     def get_view(self) -> EasyModifiedViews:

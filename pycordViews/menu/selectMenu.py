@@ -1,7 +1,7 @@
 from ..views.easy_modified_view import EasyModifiedViews
 from .menu import Menu
 
-from typing import Union, Callable
+from typing import Union, Callable, Any
 from discord.components import ComponentType
 from discord import ChannelType, Member, TextChannel, ApplicationContext
 
@@ -97,24 +97,25 @@ class SelectMenu:
 
         return menu
 
-    def set_callable(self, *custom_ids: str, _callable : Callable):
+    def set_callable(self, *custom_ids: str, _callable : Callable) -> "SelectMenu":
         """
         Set a callable for the menu associated with the custom_id
         :param custom_ids: IDs to menus
         """
         self.__select_menu.set_callable(*custom_ids, _callable=_callable)
+        return self
 
-    async def respond(self, ctx: ApplicationContext, *args, **kwargs) -> None:
+    async def respond(self, ctx: ApplicationContext, *args, **kwargs) -> Any:
         """
         Respond at the ApplicationContext
         """
-        await self.__select_menu.respond(ctx=ctx, *args, view=self.__select_menu, **kwargs)
+        return await self.__select_menu.respond(ctx=ctx, *args, view=self.__select_menu, **kwargs)
 
-    async def send(self, target: Union[Member, TextChannel], *args, **kwargs) -> None:
+    async def send(self, target: Union[Member, TextChannel], *args, **kwargs) -> Any:
         """
         Send at the target
         """
-        await self.__select_menu.send(target=target, *args, view=self.__select_menu, **kwargs)
+        return await self.__select_menu.send(target=target, *args, view=self.__select_menu, **kwargs)
 
     @property
     def get_view(self) -> EasyModifiedViews:
