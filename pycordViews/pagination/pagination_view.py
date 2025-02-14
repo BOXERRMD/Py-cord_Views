@@ -13,7 +13,7 @@ class Pagination:
     Allows you to easily setup a view pagination
     """
 
-    def __init__(self, timeout: Union[float, None] = None, disabled_on_timeout:bool = False):
+    def __init__(self, timeout: Union[float, None] = None, disabled_on_timeout: bool = False):
         """
         Initialisation for pagination
         :param timeout: The time before disable items on the view
@@ -25,7 +25,7 @@ class Pagination:
         self.__view.add_items(Button(label='◀', row=0, custom_id='back', style=ButtonStyle.blurple))
         self.__view.add_items(Button(label='▶', row=0, custom_id='forward', style=ButtonStyle.blurple))
         self.__view.add_items(Button(label='⏭', row=0, custom_id='forward+', style=ButtonStyle.blurple))
-        self.__view.set_callable('back+', 'back', 'forward', 'forward+', coroutine=self.__turn_page)
+        self.__view.set_callable('back+', 'back', 'forward', 'forward+', _callable=self.__turn_page)
 
         self.__pages: list[tuple[tuple, dict]] = []
         self.__current_page: int = 0
@@ -54,7 +54,7 @@ class Pagination:
 
             del self.__pages[page_number]
 
-    async def __turn_page(self, interaction: Interaction):
+    async def __turn_page(self, button, interaction: Interaction):
         """
         Turn the page when button is pressed
         """
@@ -91,19 +91,18 @@ class Pagination:
         # Acknowledge the interaction
         await interaction.response.defer(invisible=True)
 
-    async def send(self, send_to: Union[Member, TextChannel]) -> None:
+    async def send(self, target: Union[Member, TextChannel]) -> None:
         """
         Send pagination without introduction message.
-        :param send_to: The member or channel to send the pagination
+        :param target: The member or channel to send the pagination
         """
-
-        await send_to.send(*self.__pages[0][0], **self.__pages[0][1], view=self.get_view)
+        await self.__view.send(ctx=target, *self.__pages[0][0], **self.__pages[0][1], view=self.get_view)
 
     async def respond(self, ctx: ApplicationContext) -> None:
         """
         Respond to the command call
         """
-        await ctx.respond(*self.__pages[0][0], **self.__pages[0][1], view=self.get_view)
+        await self.__view.respond(ctx=ctx, *self.__pages[0][0], **self.__pages[0][1], view=self.get_view)
 
     @property
     def get_view(self) -> EasyModifiedViews:

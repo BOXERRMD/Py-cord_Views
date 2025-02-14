@@ -1,6 +1,6 @@
-from discord import Interaction, ApplicationContext, Message
+from discord import Interaction, ApplicationContext, Message, Member, TextChannel
 from discord.ui import View, Item
-from typing import Union, Callable, Coroutine, Iterable
+from typing import Union, Callable, Iterable
 
 from ..typeViews import T_views
 from .errors import CustomIDNotFound
@@ -39,11 +39,16 @@ class EasyModifiedViews(View):
         """
         self.__ctx = await ctx.respond(*args, **kwargs)
 
+    async def send(self, target: Union[Member, TextChannel], *args, **kwargs) -> None:
+        """
+        Send at the target
+        """
+        self.__ctx = await target.send(*args, **kwargs)
+
     def add_items(self,
                    *items: T_views) -> "EasyModifiedViews":
         """
         Add all items in the View.
-        custom_id REQUIRED !
         """
 
         for ui in items:
@@ -75,7 +80,7 @@ class EasyModifiedViews(View):
 
     def set_callable_decorator(self, custom_id: str):
         """
-        Decorator to set up a coroutine for the item
+        Decorator to set up a callable for the item
 
         **Interaction parameter is required in coroutine function !**
 
@@ -84,7 +89,7 @@ class EasyModifiedViews(View):
 
         @view.set_callable_decorator(custom_id='test_ID')
 
-        async def rep(**interaction**):
+        async def rep(**UI**, **interaction**):
             await interaction.response.send_message('coucou !!!')
 
         await ctx.respond('coucou', view=view)
@@ -92,36 +97,36 @@ class EasyModifiedViews(View):
         :param custom_id: item ID of the view
         """
 
-        def decorator(coroutine: Coroutine):
+        def decorator(_callable: Callable):
             self.__check_custom_id(custom_id)
 
-            self.__callback[custom_id]['func'] = coroutine
-            return coroutine
+            self.__callback[custom_id]['func'] = _callable
+            return _callable
 
         return decorator
 
-    def set_callable(self, *custom_ids: str, coroutine: Coroutine):
+    def set_callable(self, *custom_ids: str, _callable: Callable):
         """
-        set up a coroutine for items
+        set up a callable for items
         :param custom_ids: items IDs of the view
-        :param coroutine: The coroutine linked
+        :param _callable: The callable linked
 
-        **Interaction parameter is required in coroutine function !**
+        **UI and Interaction parameter is required in callable function !**
 
         view = EasyModifiedViews(None)
 
         view.add_view(discord.ui.Button(label='coucou', custom_id='test_ID'))
 
-        async def rep(**interaction**):
+        async def rep(**UI**, **interaction**):
             await interaction.response.send_message('coucou !!!')
 
-        view.set_callable(custom_id='test_ID', coroutine=rep)
+        view.set_callable(custom_id='test_ID', callable=rep)
         await ctx.respond('coucou', view=view)
         """
         for custom_id in custom_ids:
             self.__check_custom_id(custom_id)
 
-            self.__callback[custom_id]['func'] = coroutine
+            self.__callback[custom_id]['func'] = _callable
 
     async def interaction_check(self, interaction: Interaction) -> bool:
         """
@@ -130,7 +135,7 @@ class EasyModifiedViews(View):
         func = self.__callback[interaction.custom_id]['func']
 
         if func is not None:
-            await func(interaction)
+            await func(self.__callback[interaction.custom_id]['ui'], interaction)
 
         else:
             await interaction.response.defer(invisible=True)
@@ -263,3 +268,6 @@ class EasyModifiedViews(View):
         """
         self.__check_custom_id(custom_id)
         return self.__callback[custom_id]['ui']
+
+    def __str__(self):
+        return str(self.__callback)
