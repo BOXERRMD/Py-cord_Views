@@ -15,6 +15,7 @@ class SelectMenu:
         Init the select menu
         """
         self.__select_menu: EasyModifiedViews = EasyModifiedViews(timeout=timeout, disabled_on_timeout=disabled_on_timeout)
+        self.__current_message = None
 
     def add_string_select_menu(self, custom_id: str = None, placeholder: str = None, min_values: int = 1, max_values: int = 1, disabled=False, row=None) -> Menu:
         """
@@ -89,7 +90,7 @@ class SelectMenu:
         global function to add a Select component
         """
         menu = Menu(component_type,
-                    self.__select_menu,
+                    self,
                     **{'custom_id': custom_id, 'placeholder': placeholder, 'min_values': min_values,
                        'max_values': max_values, 'disabled': disabled, 'row': row, 'channel_types': channel_types})
 
@@ -97,10 +98,11 @@ class SelectMenu:
 
         return menu
 
-    def set_callable(self, *custom_ids: str, _callable : Callable) -> "SelectMenu":
+    def set_callable(self, *custom_ids: str, _callable: Union[Callable, None]) -> "SelectMenu":
         """
-        Set a callable for the menu associated with the custom_id
+        Set a callable for the menu associated with custom_ids
         :param custom_ids: IDs to menus
+        :param _callable: The coroutine to set for all menus
         """
         self.__select_menu.set_callable(*custom_ids, _callable=_callable)
         return self
@@ -117,9 +119,25 @@ class SelectMenu:
         """
         return await self.__select_menu.send(target=target, *args, view=self.__select_menu, **kwargs)
 
+    async def update(self):
+        """
+        Update the message.
+        If the command doesn't have been respond, nothing happened.
+        """
+        if self.get_view.message is None:
+            return
+        await self.__select_menu.update_items(*self.get_view.items)
+
     @property
     def get_view(self) -> EasyModifiedViews:
         """
         Get the current view
         """
         return self.__select_menu
+
+    def get_callable(self, custom_id: str) -> Union[Callable, None]:
+        """
+        Get the callable UI
+        :param custom_id: UI ID
+        """
+        return self.__select_menu.get_callable(custom_id)

@@ -128,6 +128,14 @@ class EasyModifiedViews(View):
 
             self.__callback[custom_id]['func'] = _callable
 
+    def get_callable(self, custom_id: str) -> Union[Callable, None]:
+        """
+        Get the callable UI
+        :param custom_id: UI ID
+        """
+        self.__check_custom_id(custom_id)
+        return self.__callback[custom_id]['func']
+
     async def interaction_check(self, interaction: Interaction) -> bool:
         """
         Func to apply items
@@ -243,16 +251,17 @@ class EasyModifiedViews(View):
         """
         Update the View on the attached message.
         """
-        try:
+        if self.is_finished():
+            return
 
-            if self.message:
-                await self.message.edit(view=self)
+        if self.message:
+            await self.message.edit(view=self)
 
-            else:
-                await self.__ctx.edit(view=self)
+        elif self.__ctx:
+            await self.__ctx.edit(view=self)
 
-        except:
-            pass
+        else:
+            return
 
     @property
     def get_uis(self) -> list[T_views]:
@@ -271,3 +280,7 @@ class EasyModifiedViews(View):
 
     def __str__(self):
         return str(self.__callback)
+
+    @property
+    def items(self) -> tuple[T_views]:
+        return tuple([i['ui'] for i in self.__callback.values()])
