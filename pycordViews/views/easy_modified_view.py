@@ -1,9 +1,13 @@
+from __future__ import annotations
 from discord import Interaction, ApplicationContext, Message, Member, TextChannel
 from discord.ui import View, Item
-from typing import Union, Callable, Iterable
+from typing import Union, Callable, TYPE_CHECKING
 
-from ..typeViews import T_views
 from .errors import CustomIDNotFound
+
+if TYPE_CHECKING:
+    from ..menu.selectMenu import SelectMenu
+    from ..pagination.pagination_view import Pagination
 
 
 class EasyModifiedViews(View):
@@ -21,7 +25,7 @@ class EasyModifiedViews(View):
         super().__init__(*items, timeout=timeout)
         self.__timeout: Union[float, None] = timeout
         self.__disabled_on_timeout: bool = disabled_on_timeout
-        self.__callback: dict[str, dict[str, Union[Callable[[Interaction], None], T_views]]] = {}
+        self.__callback: dict[str, dict[str, Union[Callable[[Interaction], None], Item]]] = {}
         self.__ctx: Union[Message, Interaction] = None
 
     def __check_custom_id(self, custom_id: str) -> None:
@@ -46,19 +50,25 @@ class EasyModifiedViews(View):
         self.__ctx = await target.send(*args, **kwargs)
 
     def add_items(self,
-                   *items: T_views) -> "EasyModifiedViews":
+                   *items: Union[Item, SelectMenu, Pagination]) -> "EasyModifiedViews":
         """
         Add all items in the View.
         """
 
         for ui in items:
 
-            self.__callback[ui.custom_id] = {'ui': ui, 'func': None}
-            self.add_item(ui)
+            if type(ui).__name__ in ('SelectMenu', 'Pagination'):
+                for item in ui.get_view.items:
+                    self.add_items(item)
+                    self.set_callable(item.custom_id, _callable=ui.get_callable(item.custom_id))
+
+            else:
+                self.__callback[ui.custom_id] = {'ui': ui, 'func': None}
+                self.add_item(ui)
 
         return self
 
-    async def update_items(self, *items: T_views) -> "EasyModifiedViews":
+    async def update_items(self, *items: Item) -> "EasyModifiedViews":
         """
         Update all views.
         Append items if custom_ids not in the view
@@ -67,7 +77,6 @@ class EasyModifiedViews(View):
         """
 
         for item in items:
-
             try:
                 self.__check_custom_id(item.custom_id)
                 self.__callback[item.custom_id]['ui'] = item
@@ -264,13 +273,13 @@ class EasyModifiedViews(View):
             return
 
     @property
-    def get_uis(self) -> list[T_views]:
+    def get_uis(self) -> list[Item]:
         """
         Get all uis in the view
         """
         return [i['ui'] for i in self.__callback.values()]
 
-    def get_ui(self, custom_id: str) -> T_views:
+    def get_ui(self, custom_id: str) -> Item:
         """
         Get an ui in the view
         :raise: CustomIDNotFound
@@ -282,5 +291,5 @@ class EasyModifiedViews(View):
         return str(self.__callback)
 
     @property
-    def items(self) -> tuple[T_views]:
+    def items(self) -> tuple[Item]:
         return tuple([i['ui'] for i in self.__callback.values()])

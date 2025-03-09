@@ -1,3 +1,4 @@
+
 from ..views.easy_modified_view import EasyModifiedViews
 from .menu import Menu
 
@@ -15,7 +16,6 @@ class SelectMenu:
         Init the select menu
         """
         self.__select_menu: EasyModifiedViews = EasyModifiedViews(timeout=timeout, disabled_on_timeout=disabled_on_timeout)
-        self.__current_message = None
 
     def add_string_select_menu(self, custom_id: str = None, placeholder: str = None, min_values: int = 1, max_values: int = 1, disabled=False, row=None) -> Menu:
         """

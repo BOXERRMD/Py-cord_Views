@@ -23,6 +23,7 @@ class Pagination:
 
         self.__view.add_items(Button(label='⏮', row=0, custom_id='back+', style=ButtonStyle.blurple))
         self.__view.add_items(Button(label='◀', row=0, custom_id='back', style=ButtonStyle.blurple))
+        self.__view.add_items(Button(label='None', row=0, custom_id='counter', style=ButtonStyle.gray, disabled=True))
         self.__view.add_items(Button(label='▶', row=0, custom_id='forward', style=ButtonStyle.blurple))
         self.__view.add_items(Button(label='⏭', row=0, custom_id='forward+', style=ButtonStyle.blurple))
         self.__view.set_callable('back+', 'back', 'forward', 'forward+', _callable=self.__turn_page)
@@ -38,6 +39,7 @@ class Pagination:
         add_page(content="my message", embeds=[embed1, embed2], ...)
         """
         self.__pages.append((args, kwargs))
+        self.__view.get_ui('counter').label = f"{self.__current_page+1}/{len(self.__pages)}"
         return self
 
     def delete_pages(self, *page_numbers: Union[str, int]) -> "Pagination":
@@ -54,6 +56,7 @@ class Pagination:
                 raise PageNumberNotFound(page_number)
 
             del self.__pages[page_number]
+        self.__view.get_ui('counter').label = f"{self.__current_page+1}/{len(self.__pages)}"
         return self
 
     async def __turn_page(self, button, interaction: Interaction):
@@ -81,10 +84,13 @@ class Pagination:
         elif interaction.custom_id == 'forward+':  # Go to the last page
             self.__current_page = page_count-1
 
+        self.__view.get_ui('counter').label = f"{self.__current_page + 1}/{len(self.__pages)}"
 
         await interaction.message.edit(
 
             *self.__pages[self.__current_page][0],
+
+            view=self.get_view,
 
             **self.__pages[self.__current_page][1]
 
@@ -117,5 +123,6 @@ class Pagination:
     def get_page(self) -> int:
         """
         Get the number of showed page
+        (start to 0)
         """
         return self.__current_page
