@@ -4,7 +4,8 @@ from .menu import Menu
 
 from typing import Union, Callable, Any
 from discord.components import ComponentType
-from discord import ChannelType, Member, TextChannel, ApplicationContext
+from discord import ChannelType, Member, ApplicationContext
+from discord.abc import GuildChannel
 
 class SelectMenu:
     """
@@ -113,7 +114,7 @@ class SelectMenu:
         """
         return await self.__select_menu.respond(ctx=ctx, *args, view=self.__select_menu, **kwargs)
 
-    async def send(self, target: Union[Member, TextChannel], *args, **kwargs) -> Any:
+    async def send(self, target: Union[Member, GuildChannel], *args, **kwargs) -> Any:
         """
         Send at the target
         """
