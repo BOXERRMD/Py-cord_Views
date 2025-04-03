@@ -1,6 +1,8 @@
-from multiprocessing import Process
+from multiprocessing import Process, get_context
 from multiprocessing.queues import Queue
 from .process import ManageProcess
+from discord import Intents
+from sys import platform
 
 
 class Multibot:
@@ -9,26 +11,59 @@ class Multibot:
         """
         Get instance to run few Discord bot
         """
-        self.main_queue: Queue = Queue()
-        self.process_queue: Queue = Queue()
-        self.DiscordProcess = Process(target=ManageProcess, args=(self.main_queue, self.process_queue))
+        if platform == 'win32':
+            ctx = get_context("spawn")
+        else:
+            ctx = get_context("forkserver")
+        self.main_queue: Queue = ctx.Queue()
+        self.process_queue: Queue = ctx.Queue()
+        # Création du processus gérant les bots
+        self.DiscordProcess = ctx.Process(target=self.start_process)
+        self.DiscordProcess.start()
 
-    def add_bot(self, name: str, token: str):
+    def start_process(self):
+        """
+        Initialise et exécute le gestionnaire de processus.
+        """
+        manager = ManageProcess(self.main_queue, self.process_queue)
+        manager.run()
+
+    def add_bot(self, name: str, token: str, intents: Intents):
         """
         Add a bot in the process
         :param name: Bot name
         :param token: Token bot
+        :param intents: Intents bot to Intents discord class
         """
-        if name in self.__bots.keys():
-            raise ValueError(f"'{name}' bot already existing !")
-
-        self.__bots[name] = DiscordBot(token)
+        self.main_queue.put({"type": "ADD", "name": name, "token": token, 'intents': intents})
+        response = self.process_queue.get()
+        return response  # Retourne le statut de l'ajout
 
     def remove_bot(self, name: str):
         """
         Shutdown and remove à bot
         :param name: Bot name to remove
         """
-        if name not in self.__bots.keys():
-            raise ValueError(f"'{name}' bot doesn't exist !")
-        self.__bots[name].stop()
+        self.main_queue.put({"type": "REMOVE", "name": name})
+        response = self.process_queue.get(timeout=30)
+        return response  # Retourne le statut de la suppression
+
+    def start(self, name: str) -> dict[str, str]:
+        """
+        Start a single bot
+        :param name: Bot name to start
+        :return: Data status dict
+        """
+        self.main_queue.put({'type': "START", 'name': name})
+        response = self.process_queue.get(timeout=30)
+        return response
+
+    def stop(self, name: str) -> dict[str, str]:
+        """
+        Stop a single bot
+        :param name: Bot name to start
+        :return: Data status dict
+        """
+        self.main_queue.put({'type': "STOP", 'name': name})
+        response = self.process_queue.get(timeout=30)
+        return response
