@@ -8,3 +8,11 @@ class BotAlreadyExistError(MultibotError):
 class BotNotFoundError(MultibotError):
     def __init__(self, bot_name: str):
         super().__init__(f"'{bot_name}' bot doesn't exist !")
+
+class BotNotStartedError(MultibotError):
+    def __init__(self, bot_name: str):
+        super().__init__(f"'{bot_name}' not started !")
+
+class BotAlreadyStartedError(MultibotError):
+    def __init__(self, bot_name: str):
+        super().__init__(f"'{bot_name}' already started !")

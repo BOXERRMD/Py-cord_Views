@@ -6,9 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="88fa8df9-7cb6-45b5-89e7-f6133c57728d" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pycordViews/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/pycordViews/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pycordViews/multibot/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/pycordViews/multibot/__init__.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pycordViews/multibot/bot.py" beforeDir="false" afterPath="$PROJECT_DIR$/pycordViews/multibot/bot.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pycordViews/multibot/errors.py" beforeDir="false" afterPath="$PROJECT_DIR$/pycordViews/multibot/errors.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pycordViews/multibot/multibot.py" beforeDir="false" afterPath="$PROJECT_DIR$/pycordViews/multibot/multibot.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pycordViews/multibot/process.py" beforeDir="false" afterPath="$PROJECT_DIR$/pycordViews/multibot/process.py" afterDir="false" />
     </list>
@@ -105,9 +104,9 @@
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/pycordViews/multibot/bot.py</url>
-          <line>24</line>
-          <option name="timeStamp" value="2" />
+          <url>file://$PROJECT_DIR$/test.py</url>
+          <line>57</line>
+          <option name="timeStamp" value="3" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
