@@ -2,6 +2,7 @@ from multiprocessing import Queue
 from .errors import BotAlreadyExistError, BotNotFoundError, MultibotError, BotNotStartedError
 from .bot import DiscordBot
 from discord import Intents
+from textwrap import dedent
 
 class ManageProcess:
 
@@ -25,7 +26,10 @@ class ManageProcess:
             "STARTALL": self.start_all_bot_to_process,
             "BOT_COUNT": self.bot_count,
             "STARTED_BOT_COUNT": self.started_bot_count,
-            "SHUTDOWN_BOT_COUNT": self.shutdown_bot_count
+            "SHUTDOWN_BOT_COUNT": self.shutdown_bot_count,
+            "BOTS_NAME": self.get_bots_name,
+            "ADD_COMMAND": self.add_command,
+            "RELOAD_COMMANDS": self.reload_all_commands
         }
 
     def run(self):
@@ -71,7 +75,6 @@ class ManageProcess:
         result = []
         for bot in self.__bots.keys():
             result.append(self.start_bot_to_process(bot))
-
         return result
 
     def stop_all_bot_to_process(self) -> list[str]:
@@ -84,6 +87,17 @@ class ManageProcess:
 
         return result
 
+    def add_command(self, name: str, func_name: str, source_code: str):
+        """
+        Ajoute une commande dynamiquement au bot
+        """
+        self.if_bot_no_exist(name)
+        local_vars = {}
+        exec(dedent(''.join(source_code.splitlines(keepends=True)[1:])), globals(), local_vars)
+        command_func = local_vars[func_name]
+        self.__bots[name].add_command(command_func)
+
+        return f"Command '{func_name}' added to bot '{name}'"
 
     def add_bot_to_process(self, name: str, token: str, intents: Intents) -> str:
         """
@@ -96,6 +110,14 @@ class ManageProcess:
             raise BotAlreadyExistError(name)
         self.__bots[name] = DiscordBot(token, intents)
         return f'Bot {name} added'
+
+    def reload_all_commands(self, name: str):
+        """
+        Recharge toutes les commandes sur Discord
+        """
+        self.if_bot_no_exist(name)
+        self.__bots[name].reload_commands()
+        return f'Bot {name} commands reloaded'
 
     def remove_bot_to_process(self, name: str) -> str:
         """
@@ -168,3 +190,8 @@ class ManageProcess:
                 s += 1
         return s
 
+    def get_bots_name(self) -> list[str]:
+        """
+        Renvoie tous les noms des bots entrée par l'utilisateur
+        """
+        return list(self.__bots.keys())
