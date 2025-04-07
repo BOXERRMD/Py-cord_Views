@@ -3,8 +3,7 @@ from multiprocessing.queues import Queue
 from .process import ManageProcess
 from discord import Intents
 from sys import platform
-from typing import Callable, Union, Optional
-from inspect import getsource
+from typing import Union
 
 
 class Multibot:
@@ -160,38 +159,48 @@ class Multibot:
         self.__main_queue.put({'type': "BOTS_NAME"})
         return self.__get_data_queue()['message']
 
-    def create_decorator_command(self, *names: str) -> dict[str, Callable]:
-        """
-        Create decorators for each bots name.
-        :param names: Bots name to get a decorator
-        :return: {'bot_name': Callable[decorator]}
-        """
-        decorators = {}
-
-        for bot_name in names:
-            def make_decorator(name):
-                def decorator(func):
-                    self.__main_queue.put({
-                        "type": "ADD_COMMAND",
-                        "name": name,
-                        "func_name": func.__name__,
-                        "source_code": getsource(func),
-                    })
-                    self.__get_data_queue()
-                    return func
-
-                return decorator
-
-            decorators[bot_name] = make_decorator(bot_name)
-        return decorators
-
-    def reload_commands(self, *names: str) -> list[dict[str, str]]:
+    def reload_commands(self, *bot_names: str) -> list[dict[str, str]]:
         """
         Reload all commands for each bot when bots are ready
-        :param names: Bots name to reload commands
+        :param bot_names: Bots name to reload commands
         """
         result = []
-        for name in names:
+        for name in bot_names:
             self.__main_queue.put({'type': "RELOAD_COMMANDS", 'name': name})
             result.append(self.__get_data_queue())
         return result
+
+    def add_pyFile_commands(self, bot_name: str, file: str, setup_function: str = 'setup', reload_command: bool = True):
+        """
+        Add and load a command bot file and dependencies.
+        Files must have a function called ‘setup’ or an equivalent passed as a parameter.
+
+        def setup(bot: Bot):
+            ...
+
+        :param bot_name: The bot's name to add commands file
+        :param file: Relative or absolute commands file's path
+        :param setup_function: Function name called by the process to give the Bot instance.
+        :param reload_command: Reload all command in the fil and dependencies. Default : True
+        """
+        self.__main_queue.put({'type': "ADD_COMMAND_FILE",
+                               'bot_name': bot_name,
+                               'file': file,
+                               'setup_function': setup_function,
+                               'reload_command': reload_command})
+        return self.__get_data_queue()
+
+    def modify_pyFile_commands(self, bot_name: str, file: str, setup_function: str = 'setup'):
+
+        """
+        Modifies a file of commands and reloads it.
+        Reloads only the file, not the bot commands!
+        :param bot_name: The bot's name
+        :param file: The file's relative or absolute path
+        """
+
+        self.__main_queue.put({'type': "MODIFY_COMMAND_FILE",
+                               'bot_name': bot_name,
+                               'file': file,
+                               'setup_function': setup_function})
+        return self.__get_data_queue()

@@ -25,7 +25,8 @@ setup(
         "Programming Language :: Python :: 3.9"
     ],
     install_requires=[
-        "py-cord==2.6.1"
+        "py-cord==2.6.1",
+        "immutable-Python-type"
     ],
     packages=['pycordViews', 'pycordViews/pagination', 'pycordViews/views', 'pycordViews/menu', 'pycordViews/multibot'],
     python_requires='>=3.9'

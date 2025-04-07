@@ -2,7 +2,7 @@ from multiprocessing import Queue
 from .errors import BotAlreadyExistError, BotNotFoundError, MultibotError, BotNotStartedError
 from .bot import DiscordBot
 from discord import Intents
-from textwrap import dedent
+from immutableType import Str_
 
 class ManageProcess:
 
@@ -28,8 +28,9 @@ class ManageProcess:
             "STARTED_BOT_COUNT": self.started_bot_count,
             "SHUTDOWN_BOT_COUNT": self.shutdown_bot_count,
             "BOTS_NAME": self.get_bots_name,
-            "ADD_COMMAND": self.add_command,
-            "RELOAD_COMMANDS": self.reload_all_commands
+            "RELOAD_COMMANDS": self.reload_all_commands,
+            "ADD_COMMAND_FILE": self.add_pyFile_commands,
+            "MODIFY_COMMAND_FILE": self.modify_pyFile_commands
         }
 
     def run(self):
@@ -87,18 +88,6 @@ class ManageProcess:
 
         return result
 
-    def add_command(self, name: str, func_name: str, source_code: str):
-        """
-        Ajoute une commande dynamiquement au bot
-        """
-        self.if_bot_no_exist(name)
-        local_vars = {}
-        exec(dedent(''.join(source_code.splitlines(keepends=True)[1:])), globals(), local_vars)
-        command_func = local_vars[func_name]
-        self.__bots[name].add_command(command_func)
-
-        return f"Command '{func_name}' added to bot '{name}'"
-
     def add_bot_to_process(self, name: str, token: str, intents: Intents) -> str:
         """
         Ajoute un bot au processus
@@ -110,6 +99,36 @@ class ManageProcess:
             raise BotAlreadyExistError(name)
         self.__bots[name] = DiscordBot(token, intents)
         return f'Bot {name} added'
+
+    def add_pyFile_commands(self, bot_name: str, file: str, setup_function: str, reload_command: bool):
+        """
+        Ajoute et charge un fichier de commande bot et ses dépendances.
+        Les fichiers doivent avoir une fonction appelée « setup » ou un équivalent passé en paramètre.
+
+        def setup(bot: Bot) :
+            ...
+
+        :param bot_name : Le nom du bot à ajouter au fichier de commandes
+        :param file: Chemin relatif ou absolue du fichier de commande
+        :param setup_function : Nom de la fonction appelée par le processus pour donner l'instance de Bot.
+        :param reload_command : Recharge toutes les commandes dans le fichier et les dépendances. Défaut : True
+        """
+        self.if_bot_no_exist(bot_name)
+        setup_function = Str_(setup_function).str_
+        file = Str_(file).str_
+        self.__bots[bot_name].add_pyFile_commands(file=file, setup_function=setup_function, reload_command=reload_command)
+
+    def modify_pyFile_commands(self, bot_name: str, file: str, setup_function: str):
+        """
+        Modifie un fichier de comandes et le recharge.
+        Ne recharge que le fichier et non les commandes du bot !
+        :param bot_name: Le nom du bot
+        :param file: Le chemin d'accès relatif ou absolue du fichier
+        """
+        self.if_bot_no_exist(bot_name)
+        file = Str_(file).str_
+        self.__bots[bot_name].modify_pyFile_commands(file=file, setup_function=setup_function)
+
 
     def reload_all_commands(self, name: str):
         """
