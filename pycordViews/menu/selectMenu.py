@@ -54,9 +54,9 @@ class SelectMenu:
         """
         return self.__global_add_component(ComponentType.role_select, custom_id=custom_id, placeholder=placeholder, max_values=max_values, min_values=min_values, disabled=disabled, row=row)
 
-    def add_mentionnable_select_menu(self, custom_id: str = None, placeholder: str = None, min_values: int = 1, max_values: int = 1, disabled=False, row=None) -> Menu:
+    def add_mentionable_select_menu(self, custom_id: str = None, placeholder: str = None, min_values: int = 1, max_values: int = 1, disabled=False, row=None) -> Menu:
         """
-        Add a role select menu in the ui
+        Add a mentionable select menu in the ui
         :param custom_id: The ID of the select menu that gets received during an interaction. If not given then one is generated for you.
         :param placeholder: The placeholder text that is shown if nothing is selected, if any.
         :param max_values: The maximum number of items that must be chosen for this select menu. Defaults to 1 and must be between 1 and 25.
@@ -68,7 +68,7 @@ class SelectMenu:
 
     def add_channel_select_menu(self, custom_id: str = None, placeholder: str = None, min_values: int = 1, max_values: int = 1, disabled=False, row=None, channel_types: list[ChannelType] = None):
         """
-        Add a role select menu in the ui
+        Add a channel select menu in the ui
         :param custom_id: The ID of the select menu that gets received during an interaction. If not given then one is generated for you.
         :param placeholder: The placeholder text that is shown if nothing is selected, if any.
         :param max_values: The maximum number of items that must be chosen for this select menu. Defaults to 1 and must be between 1 and 25.
@@ -101,8 +101,8 @@ class SelectMenu:
 
     def set_callable(self, *custom_ids: str, _callable: Union[Callable, None]) -> "SelectMenu":
         """
-        Set a callable for the menu associated with custom_ids
-        :param custom_ids: IDs to menus
+        Set a callable for menus associated with custom_ids
+        :param custom_ids: IDs menus
         :param _callable: The coroutine to set for all menus
         """
         self.__select_menu.set_callable(*custom_ids, _callable=_callable)
@@ -129,6 +129,13 @@ class SelectMenu:
             return
         await self.__select_menu.update_items(*self.get_view.items)
 
+    def get_callable(self, custom_id: str) -> Union[Callable, None]:
+        """
+        Get the callable UI
+        :param custom_id: UI ID
+        """
+        return self.__select_menu.get_callable(custom_id)
+
     @property
     def get_view(self) -> EasyModifiedViews:
         """
@@ -136,9 +143,3 @@ class SelectMenu:
         """
         return self.__select_menu
 
-    def get_callable(self, custom_id: str) -> Union[Callable, None]:
-        """
-        Get the callable UI
-        :param custom_id: UI ID
-        """
-        return self.__select_menu.get_callable(custom_id)

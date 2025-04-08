@@ -1,17 +1,17 @@
 from setuptools import setup
 
-with open("README.md") as file:
+with open("README.md", encoding='utf-8') as file:
     file = file.read()
 
 setup(
     name="PycordViews",
-    version="1.1.4",
+    version="1.2.0",
     url="https://github.com/BOXERRMD/Py-cord_Views",
     author="Chronos (alias BOXERRMD)",
     author_email="vagabonwalybi@gmail.com",
     maintainer="Chronos",
     license="MIT License",
-    description="Views for py-cord library",
+    description="Views and multibot for py-cord library",
     long_description=file,
     long_description_content_type="text/markdown",
     classifiers=[
@@ -25,7 +25,6 @@ setup(
         "Programming Language :: Python :: 3.9"
     ],
     install_requires=[
-        "py-cord==2.6.1",
         "immutable-Python-type"
     ],
     packages=['pycordViews', 'pycordViews/pagination', 'pycordViews/views', 'pycordViews/menu', 'pycordViews/multibot'],

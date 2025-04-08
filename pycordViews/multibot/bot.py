@@ -1,6 +1,7 @@
 from threading import Thread
 from discord import Intents, Bot, ApplicationCommand
 from asyncio import run_coroutine_threadsafe, new_event_loop, set_event_loop, Future, AbstractEventLoop, sleep
+from time import sleep as tsleep
 from .errors import BotNotStartedError, SetupCommandFunctionNotFound, CommandFileNotFoundError
 from typing import Optional
 from importlib import reload
@@ -139,6 +140,18 @@ class DiscordBot:
         Clear le cache du bot de manière asynchrone
         """
         await self.__bot.close()
+
+    def close_ascyncio_loop(self):
+        """
+        Ferme la boucle asyncio
+        """
+        if self.__loop.is_running():
+            self.__loop.stop()
+
+        while self.__loop.is_running():
+            tsleep(0.3)
+
+        self.__loop.close()
 
     async def __reload_commands(self, commands: Optional[list[ApplicationCommand]]):
         """

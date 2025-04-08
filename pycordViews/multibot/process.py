@@ -27,7 +27,7 @@ class ManageProcess:
             "BOT_COUNT": self.bot_count,
             "STARTED_BOT_COUNT": self.started_bot_count,
             "SHUTDOWN_BOT_COUNT": self.shutdown_bot_count,
-            "BOTS_NAME": self.get_bots_name,
+            "BOTS_bot_name": self.get_bots_bot_name,
             "RELOAD_COMMANDS": self.reload_all_commands,
             "ADD_COMMAND_FILE": self.add_pyFile_commands,
             "MODIFY_COMMAND_FILE": self.modify_pyFile_commands
@@ -52,22 +52,22 @@ class ManageProcess:
                     except MultibotError as e:
                         self.process_queue.put({'status': 'error', 'message': e})
 
-    def start_bot_to_process(self, name: str) -> str:
+    def start_bot_to_process(self, bot_name: str) -> str:
         """
         Lance un unique bot
         """
-        self.if_bot_no_exist(name)
-        self.__bots[name].start()
-        return f'{name} bot started'
+        self.if_bot_no_exist(bot_name)
+        self.__bots[bot_name].start()
+        return f'{bot_name} bot started'
 
-    def stop_bot_to_process(self, name: str) -> str:
+    def stop_bot_to_process(self, bot_name: str) -> str:
         """
         Stop un bot du processus
-        :param name: Le nom du bot à stopper
+        :param bot_name: Le nom du bot à stopper
         """
-        self.if_bot_no_exist(name)
-        self.__bots[name].stop()
-        return f'{name} bot stopped'
+        self.if_bot_no_exist(bot_name)
+        self.__bots[bot_name].stop()
+        return f'{bot_name} bot stopped'
 
     def start_all_bot_to_process(self) -> list[str]:
         """
@@ -88,19 +88,19 @@ class ManageProcess:
 
         return result
 
-    def add_bot_to_process(self, name: str, token: str, intents: Intents) -> str:
+    def add_bot_to_process(self, bot_name: str, token: str, intents: Intents) -> str:
         """
         Ajoute un bot au processus
-        :param name: Le nom du bot
+        :param bot_name: Le nom du bot
         :param token: Le token du bot
         :raise: BotAlreadyExistError si le bot existe déjà
         """
-        if name in self.__bots.keys():
-            raise BotAlreadyExistError(name)
-        self.__bots[name] = DiscordBot(token, intents)
-        return f'Bot {name} added'
+        if bot_name in self.__bots.keys():
+            raise BotAlreadyExistError(bot_name)
+        self.__bots[bot_name] = DiscordBot(token, intents)
+        return f'Bot {bot_name} added'
 
-    def add_pyFile_commands(self, bot_name: str, file: str, setup_function: str, reload_command: bool):
+    def add_pyFile_commands(self, bot_bot_name: str, file: str, setup_function: str, reload_command: bool):
         """
         Ajoute et charge un fichier de commande bot et ses dépendances.
         Les fichiers doivent avoir une fonction appelée « setup » ou un équivalent passé en paramètre.
@@ -108,80 +108,81 @@ class ManageProcess:
         def setup(bot: Bot) :
             ...
 
-        :param bot_name : Le nom du bot à ajouter au fichier de commandes
+        :param bot_bot_name : Le nom du bot à ajouter au fichier de commandes
         :param file: Chemin relatif ou absolue du fichier de commande
         :param setup_function : Nom de la fonction appelée par le processus pour donner l'instance de Bot.
         :param reload_command : Recharge toutes les commandes dans le fichier et les dépendances. Défaut : True
         """
-        self.if_bot_no_exist(bot_name)
+        self.if_bot_no_exist(bot_bot_name)
         setup_function = Str_(setup_function).str_
         file = Str_(file).str_
-        self.__bots[bot_name].add_pyFile_commands(file=file, setup_function=setup_function, reload_command=reload_command)
+        self.__bots[bot_bot_name].add_pyFile_commands(file=file, setup_function=setup_function, reload_command=reload_command)
 
-    def modify_pyFile_commands(self, bot_name: str, file: str, setup_function: str):
+    def modify_pyFile_commands(self, bot_bot_name: str, file: str, setup_function: str):
         """
         Modifie un fichier de comandes et le recharge.
         Ne recharge que le fichier et non les commandes du bot !
-        :param bot_name: Le nom du bot
+        :param bot_bot_name: Le nom du bot
         :param file: Le chemin d'accès relatif ou absolue du fichier
         """
-        self.if_bot_no_exist(bot_name)
+        self.if_bot_no_exist(bot_bot_name)
         file = Str_(file).str_
-        self.__bots[bot_name].modify_pyFile_commands(file=file, setup_function=setup_function)
+        self.__bots[bot_bot_name].modify_pyFile_commands(file=file, setup_function=setup_function)
 
 
-    def reload_all_commands(self, name: str):
+    def reload_all_commands(self, bot_name: str):
         """
         Recharge toutes les commandes sur Discord
         """
-        self.if_bot_no_exist(name)
-        self.__bots[name].reload_commands()
-        return f'Bot {name} commands reloaded'
+        self.if_bot_no_exist(bot_name)
+        self.__bots[bot_name].reload_commands()
+        return f'Bot {bot_name} commands reloaded'
 
-    def remove_bot_to_process(self, name: str) -> str:
+    def remove_bot_to_process(self, bot_name: str) -> str:
         """
         Coupe et enlève un bot au processus
-        :param name: Le nom du bot à retirer
+        :param bot_name: Le nom du bot à retirer
         :raise:
         """
-        self.if_bot_no_exist(name)
+        self.if_bot_no_exist(bot_name)
         try:
-            self.__bots[name].stop()
+            self.__bots[bot_name].stop()
         except BotNotStartedError:
             pass
-        del self.__bots[name]
-        return f'Bot {name} removed'
+        self.__bots[bot_name].close_ascyncio_loop()
+        del self.__bots[bot_name]
+        return f'Bot {bot_name} removed'
 
-    def is_started(self, name: str) -> bool:
+    def is_started(self, bot_name: str) -> bool:
         """
         Regarde si la connexion au Websocket est effectué
-        :param name: Le nom du bot à vérifier
+        :param bot_name: Le nom du bot à vérifier
         """
-        self.if_bot_no_exist(name)
-        return self.__bots[name].is_running
+        self.if_bot_no_exist(bot_name)
+        return self.__bots[bot_name].is_running
 
-    def is_ready(self, name: str) -> bool:
+    def is_ready(self, bot_name: str) -> bool:
         """
         Regarde si le bot est ready
-        :param name: Le nom du bot à vérifier
+        :param bot_name: Le nom du bot à vérifier
         """
-        self.if_bot_no_exist(name)
-        return self.__bots[name].is_ready
+        self.if_bot_no_exist(bot_name)
+        return self.__bots[bot_name].is_ready
 
-    def is_ws_ratelimited(self, name: str) -> bool:
+    def is_ws_ratelimited(self, bot_name: str) -> bool:
         """
         Regarde si le bot est ratelimit
-        :param name: Le nom du bot à vérifier
+        :param bot_name: Le nom du bot à vérifier
         """
-        self.if_bot_no_exist(name)
-        return self.__bots[name].is_ws_ratelimited
+        self.if_bot_no_exist(bot_name)
+        return self.__bots[bot_name].is_ws_ratelimited
 
-    def if_bot_no_exist(self, name: str) -> None:
+    def if_bot_no_exist(self, bot_name: str) -> None:
         """
         Regarde si le bot existe dans la class
         """
-        if name not in self.__bots.keys():
-            raise BotNotFoundError(name)
+        if bot_name not in self.__bots.keys():
+            raise BotNotFoundError(bot_name)
 
     def bot_count(self) -> int:
         """
@@ -209,7 +210,7 @@ class ManageProcess:
                 s += 1
         return s
 
-    def get_bots_name(self) -> list[str]:
+    def get_bots_bot_name(self) -> list[str]:
         """
         Renvoie tous les noms des bots entrée par l'utilisateur
         """

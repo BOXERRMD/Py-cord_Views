@@ -1,3 +1,37 @@
+Metadata-Version: 2.4
+Name: PycordViews
+Version: 1.2.0
+Summary: Views and multibot for py-cord library
+Home-page: https://github.com/BOXERRMD/Py-cord_Views
+Author: Chronos (alias BOXERRMD)
+Author-email: vagabonwalybi@gmail.com
+Maintainer: Chronos
+License: MIT License
+Classifier: Development Status :: 3 - Alpha
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Natural Language :: English
+Classifier: Operating System :: Microsoft :: Windows :: Windows 11
+Classifier: Operating System :: Microsoft :: Windows :: Windows 10
+Classifier: Operating System :: POSIX :: Linux
+Classifier: Operating System :: MacOS
+Classifier: Programming Language :: Python :: 3.9
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: immutable-Python-type
+Dynamic: author
+Dynamic: author-email
+Dynamic: classifier
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: home-page
+Dynamic: license
+Dynamic: license-file
+Dynamic: maintainer
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary
+
 # Py-cord_Views
  Views for py-cord library
 

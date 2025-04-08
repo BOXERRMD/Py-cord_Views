@@ -27,13 +27,6 @@ class Menu:
         self.__selectMenu.set_callable(self.__menu.custom_id, _callable=_callable)
         return self
 
-    @property
-    def callable(self) -> Callable:
-        """
-        Get the current callable menu
-        """
-        return self.__selectMenu.get_callable(self.__menu.custom_id)
-
     def add_option(self, label: str, value: str = MISSING, description: Union[str, None] = None, emoji: Union[str, Emoji, PartialEmoji, None] = None, default: bool = False) -> "Menu":
         """
         Add an option to choice.
@@ -82,7 +75,7 @@ class Menu:
             raise ComponentTypeError()
 
     @property
-    def component(self) -> Select:
+    def component(self) -> "CustomSelect":
         """
         Get the component
         """
@@ -94,6 +87,13 @@ class Menu:
         Get the selectMenu
         """
         return self.__selectMenu
+
+    @property
+    def callable(self) -> Callable:
+        """
+        Get the current callable menu
+        """
+        return self.__selectMenu.get_callable(self.__menu.custom_id)
 
 class CustomSelect(Select):
     """
