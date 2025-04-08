@@ -135,7 +135,7 @@ Each instance of this class creates a process where bots can be added. These bot
 > 
 > > **Method** `start(*bot_names: str) -> list[dict[str, str]]` : Start bots
 > 
-> > **Method** `def stop(*bot_names: str) -> list[dict[str, str]]` : Stop bots properly
+> > **Method** `stop(*bot_names: str) -> list[dict[str, str]]` : Stop bots properly
 > 
 > > **Method** `start_all() -> list[dict[str, list[str]]]` : Start all bot in the process
 > 

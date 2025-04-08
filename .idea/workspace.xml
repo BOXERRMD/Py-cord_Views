@@ -5,12 +5,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="88fa8df9-7cb6-45b5-89e7-f6133c57728d" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PycordViews.egg-info/PKG-INFO" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/PycordViews.egg-info/SOURCES.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/PycordViews.egg-info/dependency_links.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/PycordViews.egg-info/requires.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/PycordViews.egg-info/top_level.txt" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pycordViews/menu/menu.py" beforeDir="false" afterPath="$PROJECT_DIR$/pycordViews/menu/menu.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pycordViews/menu/selectMenu.py" beforeDir="false" afterPath="$PROJECT_DIR$/pycordViews/menu/selectMenu.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pycordViews/multibot/bot.py" beforeDir="false" afterPath="$PROJECT_DIR$/pycordViews/multibot/bot.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pycordViews/multibot/multibot.py" beforeDir="false" afterPath="$PROJECT_DIR$/pycordViews/multibot/multibot.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/pycordviews-1.2.0-py3-none-any.whl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/pycordviews-1.2.0.tar.gz" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/pycordViews/multibot/process.py" beforeDir="false" afterPath="$PROJECT_DIR$/pycordViews/multibot/process.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/setup.py" afterDir="false" />
     </list>

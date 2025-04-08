@@ -41,7 +41,7 @@ class ManageProcess:
         while True:
             if not self.main_queue.empty():
                 command: dict = self.main_queue.get()
-                print(command)
+                #print(command)
 
                 c = command["type"]
                 if c in self.commandes.keys():
@@ -100,7 +100,7 @@ class ManageProcess:
         self.__bots[bot_name] = DiscordBot(token, intents)
         return f'Bot {bot_name} added'
 
-    def add_pyFile_commands(self, bot_bot_name: str, file: str, setup_function: str, reload_command: bool):
+    def add_pyFile_commands(self, bot_name: str, file: str, setup_function: str, reload_command: bool):
         """
         Ajoute et charge un fichier de commande bot et ses dépendances.
         Les fichiers doivent avoir une fonction appelée « setup » ou un équivalent passé en paramètre.
@@ -108,26 +108,26 @@ class ManageProcess:
         def setup(bot: Bot) :
             ...
 
-        :param bot_bot_name : Le nom du bot à ajouter au fichier de commandes
+        :param bot_name : Le nom du bot à ajouter au fichier de commandes
         :param file: Chemin relatif ou absolue du fichier de commande
         :param setup_function : Nom de la fonction appelée par le processus pour donner l'instance de Bot.
         :param reload_command : Recharge toutes les commandes dans le fichier et les dépendances. Défaut : True
         """
-        self.if_bot_no_exist(bot_bot_name)
+        self.if_bot_no_exist(bot_name)
         setup_function = Str_(setup_function).str_
         file = Str_(file).str_
-        self.__bots[bot_bot_name].add_pyFile_commands(file=file, setup_function=setup_function, reload_command=reload_command)
+        self.__bots[bot_name].add_pyFile_commands(file=file, setup_function=setup_function, reload_command=reload_command)
 
-    def modify_pyFile_commands(self, bot_bot_name: str, file: str, setup_function: str):
+    def modify_pyFile_commands(self, bot_name: str, file: str, setup_function: str):
         """
         Modifie un fichier de comandes et le recharge.
         Ne recharge que le fichier et non les commandes du bot !
-        :param bot_bot_name: Le nom du bot
+        :param bot_name: Le nom du bot
         :param file: Le chemin d'accès relatif ou absolue du fichier
         """
-        self.if_bot_no_exist(bot_bot_name)
+        self.if_bot_no_exist(bot_name)
         file = Str_(file).str_
-        self.__bots[bot_bot_name].modify_pyFile_commands(file=file, setup_function=setup_function)
+        self.__bots[bot_name].modify_pyFile_commands(file=file, setup_function=setup_function)
 
 
     def reload_all_commands(self, bot_name: str):
