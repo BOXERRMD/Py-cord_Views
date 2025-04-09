@@ -24,15 +24,15 @@ class Multibot:
         
         self.global_timeout = global_timeout
         
-    def __get_data_queue(self) -> Union[list[dict], dict, None]:
+    def __get_data_queue(self) -> Union[list[dict], dict]:
         """
         Récupère les données dans la queue processus
         """
-        #try:
-        result = self.__process_queue.get(timeout=self.global_timeout)
-        return result
-        #except:
-            #return None
+        try:
+            result = self.__process_queue.get(timeout=self.global_timeout)
+            return result
+        except :
+            return {'status': 'error', 'message': 'timeout request exceeded'}
 
     def _start_process(self):
         """
