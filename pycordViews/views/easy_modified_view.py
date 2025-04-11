@@ -1,5 +1,6 @@
 from __future__ import annotations
-from discord import Interaction, ApplicationContext, Message, Member, TextChannel
+from discord import Interaction, ApplicationContext, Message, Member
+from discord.abc import GuildChannel
 from discord.ui import View, Item
 from typing import Union, Callable, TYPE_CHECKING
 
@@ -43,7 +44,7 @@ class EasyModifiedViews(View):
         """
         self.__ctx = await ctx.respond(*args, **kwargs)
 
-    async def send(self, target: Union[Member, TextChannel], *args, **kwargs) -> None:
+    async def send(self, target: Union[Member, GuildChannel], *args, **kwargs) -> None:
         """
         Send at the target
         """
