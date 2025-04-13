@@ -131,7 +131,6 @@ class Poll:
         Asynchronous base function called when timeout is reached.
         :param ctx: Actual command context
         """
-        print('call _result function')
         embed = Embed(title="Poll ended !",
                       description=f"## Results :\n"
                                   f" `-` {self.__button_yes.emoji.name} {self.__button_yes.label} -> `{self.yes_count}`\n"

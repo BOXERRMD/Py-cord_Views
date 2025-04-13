@@ -169,7 +169,6 @@ class EasyModifiedViews(View):
         Disable all items (ui) in the view
         """
         self.disable_all_items()
-        print('shutdown')
         await self._update()
 
     async def disable_items(self, *custom_ids: str) -> None:
@@ -259,13 +258,9 @@ class EasyModifiedViews(View):
         """
         Called if timeout view is finished
         """
-        print("on timeout")
         if self.__disabled_on_timeout:
-            print("disable items")
             create_task(self.shutdown())
-        print("passed")
         if self.__call_on_timeout is not None:
-            print("__call_on_timeout")
             create_task(self.__call_on_timeout(self.__ctx))
 
     def call_on_timeout(self, _callable: Callable) -> None:
@@ -274,10 +269,8 @@ class EasyModifiedViews(View):
         :param _callable: asynchronous function to call. It takes one argument : ctx
         """
         if iscoroutinefunction(_callable):
-            print("ok")
             self.__call_on_timeout = _callable
         else:
-            print("nope")
             raise CoroutineError(_callable)
 
     async def _update(self) -> None:
@@ -285,17 +278,13 @@ class EasyModifiedViews(View):
         Update the View on the attached message.
         """
         if self.is_finished() and not self.__disabled_on_timeout:
-            print('is finished')
             return
 
         if self.message:
-            print('update_message')
             await self.message.edit(view=self)
 
         elif self.__ctx:
-            print('update ctx')
             await self.__ctx.edit(view=self)
-        print('nothing update')
 
     @property
     def get_uis(self) -> list[Item]:

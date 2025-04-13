@@ -1,5 +1,5 @@
 from discord import Bot
-from pycordViews import Confirm
+from pycordViews import Confirm, Poll
 
 def setup(bot: Bot):
 
