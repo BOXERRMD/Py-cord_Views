@@ -23,6 +23,8 @@ class EasyModifiedViews(View):
         """
         Init a Class view for Discord UI
         :param timeout: The time before ui disable
+        :param disabled_on_timeout: disable view if timeout is reached
+        :param call_on_timeout: asynchronous function to call after view timed-out
         """
         super().__init__(*items, timeout=timeout)
         self.__timeout: Optional[float] = timeout
