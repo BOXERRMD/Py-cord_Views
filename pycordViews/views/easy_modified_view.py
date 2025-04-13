@@ -2,9 +2,10 @@ from __future__ import annotations
 from discord import Interaction, ApplicationContext, Message, Member
 from discord.abc import GuildChannel
 from discord.ui import View, Item
-from typing import Union, Callable, TYPE_CHECKING
+from typing import Union, Callable, TYPE_CHECKING, Optional, Any
+from asyncio import run_coroutine_threadsafe, iscoroutinefunction, get_running_loop, create_task
 
-from .errors import CustomIDNotFound
+from .errors import CustomIDNotFound, CoroutineError
 
 if TYPE_CHECKING:
     from ..menu.selectMenu import SelectMenu
@@ -18,16 +19,17 @@ class EasyModifiedViews(View):
     Allows you to easily modify and replace an ui.
     """
 
-    def __init__(self, timeout: Union[float, None] = None, disabled_on_timeout: bool = False, *items: Item):
+    def __init__(self, timeout: Optional[float] = None, disabled_on_timeout: bool = False, call_on_timeout: Optional[Callable] = None, *items: Item):
         """
         Init a Class view for Discord UI
         :param timeout: The time before ui disable
         """
         super().__init__(*items, timeout=timeout)
-        self.__timeout: Union[float, None] = timeout
+        self.__timeout: Optional[float] = timeout
         self.__disabled_on_timeout: bool = disabled_on_timeout
         self.__callback: dict[str, dict[str, Union[Callable[[Interaction], None], Item]]] = {}
         self.__ctx: Union[Message, Interaction] = None
+        self.__call_on_timeout: Callable = call_on_timeout
 
     def __check_custom_id(self, custom_id: str) -> None:
         """
@@ -165,6 +167,7 @@ class EasyModifiedViews(View):
         Disable all items (ui) in the view
         """
         self.disable_all_items()
+        print('shutdown')
         await self._update()
 
     async def disable_items(self, *custom_ids: str) -> None:
@@ -254,24 +257,43 @@ class EasyModifiedViews(View):
         """
         Called if timeout view is finished
         """
+        print("on timeout")
         if self.__disabled_on_timeout:
-            self.shutdown()
+            print("disable items")
+            create_task(self.shutdown())
+        print("passed")
+        if self.__call_on_timeout is not None:
+            print("__call_on_timeout")
+            create_task(self.__call_on_timeout(self.__ctx))
+
+    def call_on_timeout(self, _callable: Callable) -> None:
+        """
+        Call asynchronous function passed when the timeout is reached.
+        :param _callable: asynchronous function to call. It takes one argument : ctx
+        """
+        if iscoroutinefunction(_callable):
+            print("ok")
+            self.__call_on_timeout = _callable
+        else:
+            print("nope")
+            raise CoroutineError(_callable)
 
     async def _update(self) -> None:
         """
         Update the View on the attached message.
         """
-        if self.is_finished():
+        if self.is_finished() and not self.__disabled_on_timeout:
+            print('is finished')
             return
 
         if self.message:
+            print('update_message')
             await self.message.edit(view=self)
 
         elif self.__ctx:
+            print('update ctx')
             await self.__ctx.edit(view=self)
-
-        else:
-            return
+        print('nothing update')
 
     @property
     def get_uis(self) -> list[Item]:
