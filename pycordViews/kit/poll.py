@@ -1,7 +1,9 @@
 from ..views.easy_modified_view import EasyModifiedViews
+from ..views.errors import CoroutineError
 from discord.ui.button import Button, ButtonStyle
 from discord import Emoji, PartialEmoji, Embed, Color
 from typing import Optional, Callable, Union
+from asyncio import iscoroutinefunction
 
 
 class Poll:
@@ -24,39 +26,79 @@ class Poll:
         self.__view.call_on_timeout(self._result) # asynchrone fonction quand la view est arrivé à son timeout
         self.__clicked_members: list[int] = []
 
-    def set_yes_button(self, label: Optional[str],
-                       emoji: Optional[Union[str, Emoji, PartialEmoji]],
-                       style: Optional[ButtonStyle],
-                       callable: Optional[Callable]):
+    def add_answer_button(self, label: str,
+                            custom_id: str,
+                            emoji: Optional[Union[str, Emoji, PartialEmoji]] = None,
+                            style: ButtonStyle = ButtonStyle.secondary,
+                            row: Optional[int] = None,
+                            _callable: Optional[Callable] = None) -> Button:
+        """
+        Create a new answer button and add it in the view.
+        :param label: Button label
+        :param custom_id: Button ID
+        :param emoji: Button emoji
+        :param style: Button style
+        :param row: Button row
+        :param _callable: Asynchronous function linked to the button interaction. It's called when the button is pressed
+        """
+
+        if not iscoroutinefunction(_callable):
+            raise CoroutineError(_callable)
+
+        b = Button(label=label, emoji=emoji, style=style, row=row, custom_id=custom_id)
+        self.__view.add_items(b)
+        self.__view.set_callable(custom_id, _callable=_callable)
+
+        return b
+
+
+    def set_yes_button(self, label: Optional[str] = None,
+                       emoji: Optional[Union[str, Emoji, PartialEmoji]] = None,
+                       style: Optional[ButtonStyle] = None,
+                       row: Optional[int] = None,
+                       _callable: Optional[Callable] = None):
         """
         Set yes button parameters (he didn't change dynamically if the view was sent before)
         :param label: Button label
         :param emoji: Button emoji
         :param style: Button style
-        :param callable: Asynchronous function linked to the button interaction. It's called when the button is pressed
+        :param row: Button row
+        :param _callable: Asynchronous function linked to the button interaction. It's called when the button is pressed
         """
         self.__button_yes.emoji = emoji if emoji is not None else self.__button_yes.emoji
         self.__button_yes.style = style if style is not None else self.__button_yes.style
         self.__button_yes.label = label if label is not None else self.__button_yes.label
-        if callable is not None:
-            self.__view.set_callable(self.__button_yes.custom_id, _callable=callable)
+        self.__button_yes.row = row if row is not None else self.__button_yes.row
 
-    def set_no_button(self, label: Optional[str],
-                       emoji: Optional[Union[str, Emoji, PartialEmoji]],
-                       style: Optional[ButtonStyle],
-                       callable: Optional[Callable]):
+        if not iscoroutinefunction(_callable):
+            raise CoroutineError(_callable)
+
+        if _callable is not None:
+            self.__view.set_callable(self.__button_yes.custom_id, _callable=_callable)
+
+    def set_no_button(self, label: Optional[str] = None,
+                        emoji: Optional[Union[str, Emoji, PartialEmoji]] = None,
+                        style: Optional[ButtonStyle] = None,
+                        row: Optional[int] = None,
+                        _callable: Optional[Callable] = None):
         """
         Set no button parameters (he didn't change dynamically if the view was sent before)
         :param label: Button label
         :param emoji: Button emoji
+        :param row: Button row
         :param style: Button style
         :param callable: Asynchronous function linked to the button interaction. It's called when the button is pressed
         """
         self.__button_no.emoji = emoji if emoji is not None else self.__button_no.emoji
         self.__button_no.style = style if style is not None else self.__button_no.style
         self.__button_no.label = label if label is not None else self.__button_no.label
-        if callable is not None:
-            self.__view.set_callable(self.__button_no.custom_id, _callable=callable)
+        self.__button_no.row = row if row is not None else self.__button_no.row
+
+        if not iscoroutinefunction(_callable):
+            raise CoroutineError(_callable)
+
+        if _callable is not None:
+            self.__view.set_callable(self.__button_no.custom_id, _callable=_callable)
 
     async def yes(self, button, interaction):
         """
