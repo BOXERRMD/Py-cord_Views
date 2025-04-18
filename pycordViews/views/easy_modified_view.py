@@ -3,13 +3,14 @@ from discord import Interaction, ApplicationContext, Message, Member
 from discord.abc import GuildChannel
 from discord.ui import View, Item
 from typing import Union, Callable, TYPE_CHECKING, Optional, Any
-from asyncio import run_coroutine_threadsafe, iscoroutinefunction, get_running_loop, create_task
+from asyncio import iscoroutinefunction, create_task
 
 from .errors import CustomIDNotFound, CoroutineError
 
 if TYPE_CHECKING:
     from ..menu.selectMenu import SelectMenu
     from ..pagination.pagination_view import Pagination
+    from ..kit import Poll, Confirm
 
 
 class EasyModifiedViews(View):
@@ -55,14 +56,14 @@ class EasyModifiedViews(View):
         self.__ctx = await target.send(*args, **kwargs)
 
     def add_items(self,
-                   *items: Union[Item, SelectMenu, Pagination]) -> "EasyModifiedViews":
+                   *items: Union[Item, SelectMenu, Pagination, Poll, Confirm]) -> "EasyModifiedViews":
         """
         Add all items in the View.
         """
 
         for ui in items:
 
-            if type(ui).__name__ in ('SelectMenu', 'Pagination'):
+            if type(ui).__name__ in ('SelectMenu', 'Pagination', 'Confirm', 'Poll'):
                 for item in ui.get_view.items:
                     self.add_items(item)
                     self.set_callable(item.custom_id, _callable=ui.get_callable(item.custom_id))
