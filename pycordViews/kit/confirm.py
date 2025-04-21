@@ -1,6 +1,6 @@
 from typing import Optional
 from ..views.easy_modified_view import EasyModifiedViews
-from discord import Interaction, ButtonStyle, Bot
+from discord import Interaction, ButtonStyle
 from discord.ui import Button
 from asyncio import wait_for, Future, get_event_loop, TimeoutError
 

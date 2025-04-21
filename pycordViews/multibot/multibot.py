@@ -31,7 +31,7 @@ class Multibot:
         try:
             result = self.__process_queue.get(timeout=self.global_timeout)
             return result
-        except :
+        except:
             return {'status': 'error', 'message': 'timeout request exceeded'}
 
     def _start_process(self):

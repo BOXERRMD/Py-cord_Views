@@ -87,7 +87,7 @@ class Poll:
         :param emoji: Button emoji
         :param row: Button row
         :param style: Button style
-        :param callable: Asynchronous function linked to the button interaction. It's called when the button is pressed
+        :param _callable: Asynchronous function linked to the button interaction. It's called when the button is pressed
         """
         self.__button_no.emoji = emoji if emoji is not None else self.__button_no.emoji
         self.__button_no.style = style if style is not None else self.__button_no.style
