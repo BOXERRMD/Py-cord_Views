@@ -1,9 +1,10 @@
 from ..views.easy_modified_view import EasyModifiedViews
-from discord import ButtonStyle, Interaction, TextChannel, Member, ApplicationContext
+from discord import ButtonStyle, Interaction, TextChannel, Member, ApplicationContext, File, Embed
 from discord.ui import Button
 from .errors import PageNumberNotFound
+from .page import Page
 
-from typing import Union, Any
+from typing import Union, Any, Optional
 
 
 class Pagination:
@@ -28,17 +29,17 @@ class Pagination:
         self.__view.add_items(Button(label='⏭', row=0, custom_id='forward+', style=ButtonStyle.blurple))
         self.__view.set_callable('back+', 'back', 'forward', 'forward+', _callable=self.__turn_page)
 
-        self.__pages: list[tuple[tuple, dict]] = []
+        self.__pages: list[Page] = []
         self.__current_page: int = 0
 
-    def add_page(self, *args, **kwargs) -> "Pagination":
+    def add_page(self, content: Optional[str] = None, embed: Optional[Embed] = None, embeds: list[Embed] = [], file: Optional[File] = None,  files: Optional[list[File]] = [], view: Optional[EasyModifiedViews] = None) -> "Pagination":
         """
         Adds a page (in a list) as if this function directly sent the message
         Pages are just modified and not reset ! Don't forget to disable embeds or content if the page don't need this.
 
         add_page(content="my message", embeds=[embed1, embed2], ...)
         """
-        self.__pages.append((args, kwargs))
+        self.__pages.append(Page(content=content, embed=embed, embeds=embeds, file=file, files=files, view=view))
         self.__view.get_ui('counter').label = f"{self.__current_page+1}/{len(self.__pages)}"
         return self
 
@@ -86,13 +87,15 @@ class Pagination:
 
         self.__view.get_ui('counter').label = f"{self.__current_page + 1}/{len(self.__pages)}"
 
+        c = self.__pages[self.__current_page]
+
         await interaction.message.edit(
 
-            *self.__pages[self.__current_page][0],
+            content=c.content,
+            embeds=c.embeds,
+            files=c.files,
 
-            view=self.get_view,
-
-            **self.__pages[self.__current_page][1]
+            view=self.__view.copy() + self.__pages[self.__current_page].get_page_view,
 
         )
 
@@ -104,23 +107,28 @@ class Pagination:
         Send pagination without introduction message.
         :param target: The member or channel to send the pagination
         """
-        return await self.__view.send(ctx=target, *self.__pages[0][0], **self.__pages[0][1], view=self.get_view)
+        first_page = self.__pages[0]
+        return await self.__view.send(target=target, content=first_page.content, embeds=first_page.embeds, files=first_page.files, view=self.__view.copy() + first_page.get_page_view)
 
     async def respond(self, ctx: ApplicationContext) -> Any:
         """
         Respond to the command call
+        :param ctx: ApplicationContext to respond
         """
-        return await self.__view.respond(ctx=ctx, *self.__pages[0][0], **self.__pages[0][1], view=self.get_view)
+        first_page = self.__pages[0]
+        return await self.__view.respond(ctx=ctx, content=first_page.content, embeds=first_page.embeds, files=first_page.files, view=self.__view.copy() + first_page.get_page_view)
+
+    def get_page(self, page_number: int) -> Page:
+        """
+        Get the page
+        """
+        if 0 <= page_number <= len(self.__pages):
+            return self.__pages[page_number]
+        else:
+            raise PageNumberNotFound(page_number)
 
     @property
-    def get_view(self) -> EasyModifiedViews:
-        """
-        Get the view of pagination
-        """
-        return self.__view
-
-    @property
-    def get_page(self) -> int:
+    def get_current_showed_page(self) -> int:
         """
         Get the number of showed page
         (start to 0)

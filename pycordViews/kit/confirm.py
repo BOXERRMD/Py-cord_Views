@@ -7,12 +7,13 @@ from asyncio import wait_for, Future, get_event_loop, TimeoutError
 
 class Confirm:
 
-    def __init__(self, timeout: Optional[float] = None):
+    def __init__(self, timeout: Optional[float] = None, disable_on_click: bool = False):
         """
         Init a Confirm class instance kit.
         :param timeout: Time before end the view
         """
         self.__timeout: float = timeout
+        self.__disable_on_click: bool = disable_on_click
         self.__view: EasyModifiedViews = EasyModifiedViews(disabled_on_timeout=True, timeout=timeout, call_on_timeout=self._on_timeout)
         self.__button_confirm: Button = Button(label='Confirm', emoji='✅', style=ButtonStyle.green, custom_id='Confirm_confirm')
         self.__button_denied: Button = Button(label='Denied', emoji='❌', style=ButtonStyle.gray, custom_id='Confirm_denied')
@@ -28,6 +29,8 @@ class Confirm:
         """
         if not self.__future.done():
             self.__future.set_result(True)
+        if self.__disable_on_click:
+            await self.__view.disable_items('Confirm_confirm', 'Confirm_denied')
         await interaction.response.defer()
 
     async def _denied(self, button: Button, interaction: Interaction):
@@ -36,6 +39,8 @@ class Confirm:
         """
         if not self.__future.done():
             self.__future.set_result(False)
+        if self.__disable_on_click:
+            await self.__view.disable_items('Confirm_confirm', 'Confirm_denied')
         await interaction.response.defer()
 
     async def wait_for_response(self) -> Optional[bool]:
@@ -45,6 +50,7 @@ class Confirm:
         """
         try:
             return await wait_for(self.__future, timeout=self.__timeout)
+
         except TimeoutError:
             return None
 

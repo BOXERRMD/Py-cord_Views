@@ -1,12 +1,16 @@
 from discord import Bot
-from pycordViews import Confirm, Poll
+from discord.ui import Button
+from pycordViews import Pagination
 
 def setup(bot: Bot):
 
     @bot.command()
     async def test(ctx):
-        p = Confirm(timeout=10)
-        await ctx.respond(f"Test de poll", view=p.get_view)
-        result = await p.wait_for_response()
-        await ctx.send(content=str(result))
+        p = Pagination()
+        p.add_page(content='coucou')
+        p.add_page(content='bye')
+        p.get_page(1).get_page_view.add_items(Button(label='Test'))
+        p.add_page(content='fff')
+
+        await p.respond(ctx)
 

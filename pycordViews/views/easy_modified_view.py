@@ -2,7 +2,7 @@ from __future__ import annotations
 from discord import Interaction, ApplicationContext, Message, Member
 from discord.abc import GuildChannel
 from discord.ui import View, Item
-from typing import Union, Callable, TYPE_CHECKING, Optional, Any
+from typing import Union, Callable, TYPE_CHECKING, Optional
 from asyncio import iscoroutinefunction, create_task
 
 from .errors import CustomIDNotFound, CoroutineError
@@ -56,14 +56,17 @@ class EasyModifiedViews(View):
         self.__ctx = await target.send(*args, **kwargs)
 
     def add_items(self,
-                   *items: Union[Item, SelectMenu, Pagination, Poll, Confirm]) -> "EasyModifiedViews":
+                   *items: Union[EasyModifiedViews, Confirm, Pagination, Poll, SelectMenu, Item]) -> EasyModifiedViews:
         """
         Add all items in the View.
         """
 
         for ui in items:
 
-            if type(ui).__name__ in ('SelectMenu', 'Pagination', 'Confirm', 'Poll'):
+            if ui is None: # si l'ui n'est pas setup
+                continue
+
+            if type(ui).__name__ in ('SelectMenu', 'Pagination', 'Confirm', 'Poll', 'EasyModifiedViews'):
                 for item in ui.get_view.items:
                     self.add_items(item)
                     self.set_callable(item.custom_id, _callable=ui.get_callable(item.custom_id))
@@ -124,7 +127,7 @@ class EasyModifiedViews(View):
         """
         set up a callable for items
         :param custom_ids: items IDs of the view
-        :param _callable: The callable linked
+        :param _callable: The asynchronous callable linked. Take UI (Button, Select...) and Interaction parameters.
 
         **UI and Interaction parameter is required in callable function !**
 
@@ -236,7 +239,6 @@ class EasyModifiedViews(View):
 
         return True
 
-
     async def delete_items(self, clear_all: bool = False, *custom_ids: str) -> None:
         """
         Delete an item on the view
@@ -287,13 +289,6 @@ class EasyModifiedViews(View):
         elif self.__ctx:
             await self.__ctx.edit(view=self)
 
-    @property
-    def get_uis(self) -> list[Item]:
-        """
-        Get all uis in the view
-        """
-        return [i['ui'] for i in self.__callback.values()]
-
     def get_ui(self, custom_id: str) -> Item:
         """
         Get an ui in the view
@@ -302,9 +297,39 @@ class EasyModifiedViews(View):
         self.__check_custom_id(custom_id)
         return self.__callback[custom_id]['ui']
 
+    def copy(self) -> EasyModifiedViews:
+        """
+        Return an exact copy of the view. All mutable object in the view is a new object
+        """
+        e = EasyModifiedViews(timeout=self.__timeout, disabled_on_timeout=self.__disabled_on_timeout).add_items(*self.items)
+        for i in self.items:
+            e.set_callable(i.custom_id, _callable=self.get_callable(i.custom_id))
+
+        return e
+
     def __str__(self):
         return str(self.__callback)
 
     @property
     def items(self) -> tuple[Item]:
         return tuple([i['ui'] for i in self.__callback.values()])
+
+    @property
+    def get_view(self) -> EasyModifiedViews:
+        """
+        Get The current view. Don't use in your code
+        """
+        return self
+
+    def __add__(self, _view: Union[EasyModifiedViews, Confirm, Pagination, Poll, SelectMenu, Item]) -> EasyModifiedViews:
+        """
+        Add all items to _view from the current EasyModifiedViews instance
+        """
+        self.add_items(_view)
+        return self
+
+    def __iadd__(self, _view) -> EasyModifiedViews:
+        """
+        Add all items to _view from the current EasyModifiedViews instance
+        """
+        return self.__add__(_view)
