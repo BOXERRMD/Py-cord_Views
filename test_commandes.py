@@ -1,16 +1,17 @@
 from discord import Bot
 from discord.ui import Button
-from pycordViews import Pagination
+from pycordViews import EasyModal
 
 def setup(bot: Bot):
 
     @bot.command()
     async def test(ctx):
-        p = Pagination()
-        p.add_page(content='coucou')
-        p.add_page(content='bye')
-        p.get_page(1).get_page_view.add_items(Button(label='Test'))
-        p.add_page(content='fff')
+        p = EasyModal(title="cc")
+        p.add_input_text(label='test', placeholder='HELLOOOOOOOOOO')(test)
 
-        await p.respond(ctx)
+        await ctx.respon
 
+        p.wait()
+
+    async def test(data, interaction):
+        print(data.value)
