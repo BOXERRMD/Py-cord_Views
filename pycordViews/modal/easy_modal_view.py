@@ -41,6 +41,7 @@ class EasyModal(Modal):
 
         x = InputText(label=label, style=style, custom_id=custom_id, placeholder=placeholder, min_length=min_length, max_length=max_length, required=required, row=row, value=value)
         self.__callback[x.custom_id] = None
+        self.add_item(x)
         return partial(self.set_inputText_callable, x.custom_id)
 
     def set_inputText_callable(self, inputText_id: str, _callable: Callable) -> "EasyModal":
