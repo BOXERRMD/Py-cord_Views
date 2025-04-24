@@ -69,7 +69,7 @@ class EasyModifiedViews(View):
             if type(ui).__name__ in ('SelectMenu', 'Pagination', 'Confirm', 'Poll', 'EasyModifiedViews'):
                 for item in ui.get_view.items:
                     self.add_items(item)
-                    self.set_callable(item.custom_id, _callable=ui.get_callable(item.custom_id))
+                    self.set_callable(item.custom_id, _callable=ui.get_callable(item.custom_id), data=ui.get_callable_data(item.custom_id))
 
             else:
                 self.__callback[ui.custom_id] = {'ui': ui, 'func': None, 'data': {}}
@@ -96,7 +96,7 @@ class EasyModifiedViews(View):
         await self._update()
         return self
 
-    def set_callable_decorator(self, custom_id: str, data: dict[str, Any] = {}):
+    def set_callable_decorator(self, custom_id: str, data: Optional[dict[str, Any]] = None):
         """
         Decorator to set up a callable for the item
 
@@ -117,15 +117,12 @@ class EasyModifiedViews(View):
         """
 
         def decorator(_callable: Callable):
-            self.__check_custom_id(custom_id)
-
-            self.__callback[custom_id]['func'] = _callable
-            self.__callback[custom_id]['data'] = data
+            self.set_callable(custom_id, _callable=_callable, data=data)
             return _callable
 
         return decorator
 
-    def set_callable(self, *custom_ids: str, _callable: Callable, data: dict[str, Any] = {}):
+    def set_callable(self, *custom_ids: str, _callable: Callable, data: Optional[dict[str, Any]] = None):
         """
         set up a callable for items
         :param custom_ids: items IDs of the view
@@ -148,7 +145,7 @@ class EasyModifiedViews(View):
             self.__check_custom_id(custom_id)
 
             self.__callback[custom_id]['func'] = _callable
-            self.__callback[custom_id]['data'] = data
+            self.__callback[custom_id]['data'] = data if data is not None else {}
 
     def get_callable(self, custom_id: str) -> Union[Callable, None]:
         """
@@ -166,7 +163,7 @@ class EasyModifiedViews(View):
         data = self.__callback[interaction.custom_id]['data']
 
         if func is not None:
-            return await func(self.__callback[interaction.custom_id]['ui'], interaction, data) if data != {} else await func(self.__callback[interaction.custom_id]['ui'], interaction)
+            return await func(self.__callback[interaction.custom_id]['ui'], interaction, data)
 
         else:
             await interaction.response.defer(invisible=True)
@@ -297,10 +294,19 @@ class EasyModifiedViews(View):
     def get_ui(self, custom_id: str) -> Item:
         """
         Get an ui in the view
+        :param custom_id: UI ID
         :raise: CustomIDNotFound
         """
         self.__check_custom_id(custom_id)
         return self.__callback[custom_id]['ui']
+
+    def get_callable_data(self, custom_id: str) -> dict[str, Any]:
+        """
+        Get datas passed in the callable asynchronous function
+        :param custom_id: UI ID
+        """
+        self.__check_custom_id(custom_id)
+        return self.__callback[custom_id]['data']
 
     def copy(self) -> EasyModifiedViews:
         """
@@ -308,7 +314,7 @@ class EasyModifiedViews(View):
         """
         e = EasyModifiedViews(timeout=self.__timeout, disabled_on_timeout=self.__disabled_on_timeout).add_items(*self.items)
         for i in self.items:
-            e.set_callable(i.custom_id, _callable=self.get_callable(i.custom_id))
+            e.set_callable(i.custom_id, _callable=self.get_callable(i.custom_id), data=self.get_callable_data(i.custom_id))
 
         return e
 
