@@ -88,6 +88,8 @@ class EasyModal(Modal):
             if _callable is not None:
                 await _callable(self.get_input_text(inputTextID),interaction)
 
+
+
     def get_input_text(self, inputText_id: str) -> InputText:
         """
         Return the inputText associated to the inputText_id

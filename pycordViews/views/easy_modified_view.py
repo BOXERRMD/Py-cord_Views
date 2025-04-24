@@ -2,7 +2,7 @@ from __future__ import annotations
 from discord import Interaction, ApplicationContext, Message, Member
 from discord.abc import GuildChannel
 from discord.ui import View, Item
-from typing import Union, Callable, TYPE_CHECKING, Optional
+from typing import Union, Callable, TYPE_CHECKING, Optional, Any
 from asyncio import iscoroutinefunction, create_task
 
 from .errors import CustomIDNotFound, CoroutineError
@@ -30,7 +30,7 @@ class EasyModifiedViews(View):
         super().__init__(*items, timeout=timeout)
         self.__timeout: Optional[float] = timeout
         self.__disabled_on_timeout: bool = disabled_on_timeout
-        self.__callback: dict[str, dict[str, Union[Callable[[Interaction], None], Item]]] = {}
+        self.__callback: dict[str, dict[str, Union[Callable[[Interaction], None], Item, Any]]] = {}
         self.__ctx: Union[Message, Interaction] = None
         self.__call_on_timeout: Callable = call_on_timeout
 
@@ -72,7 +72,7 @@ class EasyModifiedViews(View):
                     self.set_callable(item.custom_id, _callable=ui.get_callable(item.custom_id))
 
             else:
-                self.__callback[ui.custom_id] = {'ui': ui, 'func': None}
+                self.__callback[ui.custom_id] = {'ui': ui, 'func': None, 'data': {}}
                 self.add_item(ui)
 
         return self
@@ -96,7 +96,7 @@ class EasyModifiedViews(View):
         await self._update()
         return self
 
-    def set_callable_decorator(self, custom_id: str):
+    def set_callable_decorator(self, custom_id: str, data: dict[str, Any] = {}):
         """
         Decorator to set up a callable for the item
 
@@ -113,30 +113,33 @@ class EasyModifiedViews(View):
         await ctx.respond('coucou', view=view)
 
         :param custom_id: item ID of the view
+        :param data: Add any data to pass in called function.
         """
 
         def decorator(_callable: Callable):
             self.__check_custom_id(custom_id)
 
             self.__callback[custom_id]['func'] = _callable
+            self.__callback[custom_id]['data'] = data
             return _callable
 
         return decorator
 
-    def set_callable(self, *custom_ids: str, _callable: Callable):
+    def set_callable(self, *custom_ids: str, _callable: Callable, data: dict[str, Any] = {}):
         """
         set up a callable for items
         :param custom_ids: items IDs of the view
         :param _callable: The asynchronous callable linked. Take UI (Button, Select...) and Interaction parameters.
+        :param data: Add any data to pass in called function.
 
         **UI and Interaction parameter is required in callable function !**
 
         view = EasyModifiedViews(None)
 
-        view.add_view(discord.ui.Button(label='coucou', custom_id='test_ID'))
+        view.add_view(discord.ui.Button(label='coucou', custom_id='test_ID', data={'message': 'Hello !'}))
 
-        async def rep(**UI**, **interaction**):
-            await interaction.response.send_message('coucou !!!')
+        async def rep(**UI**, **interaction**, data: dict[str, Any]):
+            await interaction.response.send_message(data['message'])
 
         view.set_callable(custom_id='test_ID', callable=rep)
         await ctx.respond('coucou', view=view)
@@ -145,6 +148,7 @@ class EasyModifiedViews(View):
             self.__check_custom_id(custom_id)
 
             self.__callback[custom_id]['func'] = _callable
+            self.__callback[custom_id]['data'] = data
 
     def get_callable(self, custom_id: str) -> Union[Callable, None]:
         """
@@ -159,9 +163,10 @@ class EasyModifiedViews(View):
         Func to apply items
         """
         func = self.__callback[interaction.custom_id]['func']
+        data = self.__callback[interaction.custom_id]['data']
 
         if func is not None:
-            return await func(self.__callback[interaction.custom_id]['ui'], interaction)
+            return await func(self.__callback[interaction.custom_id]['ui'], interaction, data) if data != {} else await func(self.__callback[interaction.custom_id]['ui'], interaction)
 
         else:
             await interaction.response.defer(invisible=True)
