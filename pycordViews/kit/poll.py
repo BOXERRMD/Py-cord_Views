@@ -100,7 +100,7 @@ class Poll:
         if _callable is not None:
             self.__view.set_callable(self.__button_no.custom_id, _callable=_callable)
 
-    async def yes(self, button, interaction):
+    async def yes(self, button, interaction, data):
         """
         Base asynchronous function when "yes" button is pressed.
         Increment “yes_count” attribute when pressed and respond with an ephemeral message.
@@ -113,7 +113,7 @@ class Poll:
         self.__clicked_members.append(interaction.user.id)
         await interaction.response.send_message(f"You have selected : {button.label}", ephemeral=True)
 
-    async def no(self, button, interaction):
+    async def no(self, button, interaction, data):
         """
         Base asynchronous function when "no" button is pressed.
         Increment “yes_count” attribute when pressed and respond with an ephemeral message.

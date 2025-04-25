@@ -60,7 +60,7 @@ class Pagination:
         self.__view.get_ui('counter').label = f"{self.__current_page+1}/{len(self.__pages)}"
         return self
 
-    async def __turn_page(self, button, interaction: Interaction):
+    async def __turn_page(self, button, interaction: Interaction, data):
         """
         Turn the page when button is pressed
         """

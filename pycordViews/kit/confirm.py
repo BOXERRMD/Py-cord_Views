@@ -23,7 +23,7 @@ class Confirm:
 
         self.__future: Future = get_event_loop().create_future()
 
-    async def _confirm(self, button: Button, interaction: Interaction):
+    async def _confirm(self, button: Button, interaction: Interaction, data):
         """
         Base asynchronous _confirm function called when button is pressed
         """

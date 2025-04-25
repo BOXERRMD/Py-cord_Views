@@ -133,12 +133,12 @@ class EasyModifiedViews(View):
 
         view = EasyModifiedViews(None)
 
-        view.add_view(discord.ui.Button(label='coucou', custom_id='test_ID', data={'message': 'Hello !'}))
+        view.add_view(discord.ui.Button(label='coucou', custom_id='test_ID'))
 
         async def rep(**UI**, **interaction**, data: dict[str, Any]):
             await interaction.response.send_message(data['message'])
 
-        view.set_callable(custom_id='test_ID', callable=rep)
+        view.set_callable(custom_id='test_ID', callable=rep, data={'message': 'Hello !'})
         await ctx.respond('coucou', view=view)
         """
         for custom_id in custom_ids:
