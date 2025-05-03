@@ -1,5 +1,5 @@
 from __future__ import annotations
-from discord import Interaction, ApplicationContext, Message, Member
+from discord import Interaction, ApplicationContext, Message, Member, Role
 from discord.abc import GuildChannel
 from discord.ui import View, Item
 from typing import Union, Callable, TYPE_CHECKING, Optional, Any
@@ -72,7 +72,7 @@ class EasyModifiedViews(View):
                     self.set_callable(item.custom_id, _callable=ui.get_callable(item.custom_id), data=ui.get_callable_data(item.custom_id))
 
             else:
-                self.__callback[ui.custom_id] = {'ui': ui, 'func': None, 'data': {}}
+                self.__callback[ui.custom_id] = {'ui': ui, 'func': None, 'data': {}, 'autorised_roles': None}
                 self.add_item(ui)
 
         return self
@@ -96,7 +96,7 @@ class EasyModifiedViews(View):
         await self._update()
         return self
 
-    def set_callable_decorator(self, custom_id: str, data: Optional[dict[str, Any]] = None):
+    def set_callable_decorator(self, custom_id: str, data: Optional[dict[str, Any]] = None, autorised_roles : Optional[list[Union[int, Role]]] = None):
         """
         Decorator to set up a callable for the item
 
@@ -114,20 +114,22 @@ class EasyModifiedViews(View):
 
         :param custom_id: item ID of the view
         :param data: Add any data to pass in called function.
+        :param autorised_roles: Any role ID allowed to interact with the view
         """
 
         def decorator(_callable: Callable):
-            self.set_callable(custom_id, _callable=_callable, data=data)
+            self.set_callable(custom_id, _callable=_callable, data=data, autorised_roles=autorised_roles)
             return _callable
 
         return decorator
 
-    def set_callable(self, *custom_ids: str, _callable: Callable, data: Optional[dict[str, Any]] = None):
+    def set_callable(self, *custom_ids: str, _callable: Callable, data: Optional[dict[str, Any]] = None, autorised_roles : Optional[list[Union[int, Role]]] = None):
         """
         set up a callable for items
         :param custom_ids: items IDs of the view
         :param _callable: The asynchronous callable linked. Take UI (Button, Select...) and Interaction parameters.
         :param data: Add any data to pass in called function.
+        :param autorised_roles: Any role ID allowed to interact with the view
 
         **UI and Interaction parameter is required in callable function !**
 
@@ -146,6 +148,10 @@ class EasyModifiedViews(View):
 
             self.__callback[custom_id]['func'] = _callable
             self.__callback[custom_id]['data'] = data if data is not None else {}
+            if autorised_roles is not None:
+                self.__callback[custom_id]['autorised_roles'] = [role.id if isinstance(role, Role) else role for role in autorised_roles if isinstance(role, (Role, int))]
+            else:
+                self.__callback[custom_id]['autorised_roles'] = None
 
     def get_callable(self, custom_id: str) -> Union[Callable, None]:
         """
@@ -161,8 +167,14 @@ class EasyModifiedViews(View):
         """
         func = self.__callback[interaction.custom_id]['func']
         data = self.__callback[interaction.custom_id]['data']
+        autorised_roles = self.__callback[interaction.custom_id]['autorised_roles']
 
         if func is not None:
+            if autorised_roles is not None:
+                if not (set(autorised_roles) & set([i.id for i in interaction.user.roles])):
+                    await interaction.response.defer(invisible=True)
+                    return False
+
             return await func(self.__callback[interaction.custom_id]['ui'], interaction, data)
 
         else:

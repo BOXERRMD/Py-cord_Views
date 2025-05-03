@@ -61,7 +61,7 @@ The SelectMenu instance is used to create drop-down menus that can be easily mod
 > 
 > > **Method** `add_mentionnable_select_menu(custom_id: str = None, placeholder: str = None, min_values: int = 1, max_values: int = 1, disabled=False, row=None) -> Menu` : Add a mentionable select menu in the ui. Return Menu instance to set options
 > 
-> > **Method** `set_callable(*custom_ids: str, _callable: Union[Callable, None]) -> SelectMenu` : Set a callable for menus associated with custom_ids. This callable _(async function)_ will be set to respond at selected menus interactions
+> > **Method** `set_callable(*custom_ids: str, _callable: Union[Callable, None], data: Optional[dict[str, Any]]) -> SelectMenu` : Set a callable for menus associated with custom_ids. This callable _(async function)_ will be set to respond at selected menus interactions. _data_ parameter is a dict fill with any values to pass in _(async function)_ parameters
 > 
 > > **Method** `send(target: Union[Member, TextChannel]) -> Any` : Send the selectmenu in dm member or channels
 > 

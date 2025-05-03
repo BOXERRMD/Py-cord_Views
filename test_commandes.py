@@ -1,17 +1,15 @@
 from discord import Bot
 from discord.ui import Button
-from pycordViews import EasyModal
+from pycordViews import EasyModifiedViews
 
 def setup(bot: Bot):
 
     @bot.command()
     async def test(ctx):
-        p = EasyModal(title="cc")
-        p.add_input_text(label='test', placeholder='HELLOOOOOOOOOO')(test)
+        p = EasyModifiedViews()
+        p.add_items(Button(label='coucou', custom_id='1234'))
+        p.set_callable('1234', _callable=test)
+        await ctx.respond(view=p, content='coucou !')
 
-        await ctx.respon
-
-        p.wait()
-
-    async def test(data, interaction):
-        print(data.value)
+    async def test(ui, interaction, data):
+        await interaction.respond('ok')
