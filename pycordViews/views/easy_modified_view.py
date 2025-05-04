@@ -72,7 +72,7 @@ class EasyModifiedViews(View):
                     self.set_callable(item.custom_id, _callable=ui.get_callable(item.custom_id), data=ui.get_callable_data(item.custom_id))
 
             else:
-                self.__callback[ui.custom_id] = {'ui': ui, 'func': None, 'data': {}, 'autorised_roles': None}
+                self.__callback[ui.custom_id] = {'ui': ui, 'func': None, 'data': {}, 'autorised_roles': None, 'autorised_key': None}
                 self.add_item(ui)
 
         return self
@@ -96,7 +96,10 @@ class EasyModifiedViews(View):
         await self._update()
         return self
 
-    def set_callable_decorator(self, custom_id: str, data: Optional[dict[str, Any]] = None, autorised_roles : Optional[list[Union[int, Role]]] = None):
+    def set_callable_decorator(self, custom_id: str,
+                               data: Optional[dict[str, Any]] = None,
+                               autorised_roles : Optional[list[Union[int, Role]]] = None,
+                               autorised_key: Optional[Callable] = None):
         """
         Decorator to set up a callable for the item
 
@@ -115,21 +118,31 @@ class EasyModifiedViews(View):
         :param custom_id: item ID of the view
         :param data: Add any data to pass in called function.
         :param autorised_roles: Any role ID allowed to interact with the view
+        :param autorised_key: Callable function to check anything. The function get the current interaction passed in parameter
         """
 
         def decorator(_callable: Callable):
-            self.set_callable(custom_id, _callable=_callable, data=data, autorised_roles=autorised_roles)
+            self.set_callable(custom_id,
+                              _callable=_callable,
+                              data=data,
+                              autorised_roles=autorised_roles,
+                              autorised_key=autorised_key)
             return _callable
 
         return decorator
 
-    def set_callable(self, *custom_ids: str, _callable: Callable, data: Optional[dict[str, Any]] = None, autorised_roles : Optional[list[Union[int, Role]]] = None):
+    def set_callable(self, *custom_ids: str,
+                     _callable: Callable,
+                     data: Optional[dict[str, Any]] = None,
+                     autorised_roles : Optional[list[Union[int, Role]]] = None,
+                     autorised_key: Optional[Callable] = None):
         """
         set up a callable for items
         :param custom_ids: items IDs of the view
         :param _callable: The asynchronous callable linked. Take UI (Button, Select...) and Interaction parameters.
         :param data: Add any data to pass in called function.
         :param autorised_roles: Any role ID allowed to interact with the view
+        :param autorised_key: Callable function to check anything. The function get the current interaction passed in parameter
 
         **UI and Interaction parameter is required in callable function !**
 
@@ -148,6 +161,7 @@ class EasyModifiedViews(View):
 
             self.__callback[custom_id]['func'] = _callable
             self.__callback[custom_id]['data'] = data if data is not None else {}
+            self.__callback[custom_id]['autorised_key'] = autorised_key
             if autorised_roles is not None:
                 self.__callback[custom_id]['autorised_roles'] = [role.id if isinstance(role, Role) else role for role in autorised_roles if isinstance(role, (Role, int))]
             else:
@@ -168,11 +182,16 @@ class EasyModifiedViews(View):
         func = self.__callback[interaction.custom_id]['func']
         data = self.__callback[interaction.custom_id]['data']
         autorised_roles = self.__callback[interaction.custom_id]['autorised_roles']
+        autorised_key = self.__callback[interaction.custom_id]['autorised_key']
 
         if func is not None:
-            if autorised_roles is not None:
-                if not (set(autorised_roles) & set([i.id for i in interaction.user.roles])):
+            if autorised_roles is not None: # si des rôles sont obligatoires
+                if not (set(autorised_roles) & set([i.id for i in interaction.user.roles])): # si aucun rôle de l'user est dans les rôles aubligatoires
                     await interaction.response.defer(invisible=True)
+                    return False
+
+            if autorised_key is not None: # si une fonction est config pour la vérification
+                if not autorised_key(interaction): # Si la fonction renvoie False
                     return False
 
             return await func(self.__callback[interaction.custom_id]['ui'], interaction, data)
