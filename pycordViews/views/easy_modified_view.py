@@ -69,7 +69,7 @@ class EasyModifiedViews(View):
             if type(ui).__name__ in ('SelectMenu', 'Pagination', 'Confirm', 'Poll', 'EasyModifiedViews'):
                 for item in ui.get_view.items:
                     self.add_items(item)
-                    self.set_callable(item.custom_id, _callable=ui.get_callable(item.custom_id), data=ui.get_callable_data(item.custom_id))
+                    self.set_callable(item.custom_id, _callable=ui.get_view.get_callable(item.custom_id), data=ui.get_view.get_callable_data(item.custom_id))
 
             else:
                 self.__callback[ui.custom_id] = {'ui': ui, 'func': None, 'data': {}, 'autorised_roles': None, 'autorised_key': None}
