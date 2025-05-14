@@ -4,7 +4,7 @@ from .menu import Menu
 
 from typing import Union, Callable, Any
 from discord.components import ComponentType
-from discord import ChannelType, Member, ApplicationContext
+from discord import ChannelType, Member, ApplicationContext, Interaction
 from discord.abc import GuildChannel
 
 class SelectMenu:
@@ -108,7 +108,7 @@ class SelectMenu:
         self.__select_menu.set_callable(*custom_ids, _callable=_callable)
         return self
 
-    async def respond(self, ctx: ApplicationContext, *args, **kwargs) -> Any:
+    async def respond(self, ctx: Union[ApplicationContext, Interaction], *args, **kwargs) -> Any:
         """
         Respond at the ApplicationContext
         """

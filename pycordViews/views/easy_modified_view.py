@@ -43,9 +43,9 @@ class EasyModifiedViews(View):
         if custom_id not in self.__callback.keys():
             raise CustomIDNotFound()
 
-    async def respond(self, ctx: ApplicationContext, *args, **kwargs) -> None:
+    async def respond(self, ctx: Union[ApplicationContext, Interaction], *args, **kwargs) -> None:
         """
-        Respond at the ApplicationContext
+        Respond at the ApplicationContext or Interaction
         """
         self.__ctx = await ctx.respond(*args, **kwargs)
 

@@ -110,7 +110,7 @@ class Pagination:
         first_page = self.__pages[0]
         return await self.__view.send(target=target, content=first_page.content, embeds=first_page.embeds, files=first_page.files, view=self.__view.copy() + first_page.get_page_view)
 
-    async def respond(self, ctx: ApplicationContext) -> Any:
+    async def respond(self, ctx: Union[ApplicationContext, Interaction]) -> Any:
         """
         Respond to the command call
         :param ctx: ApplicationContext to respond
