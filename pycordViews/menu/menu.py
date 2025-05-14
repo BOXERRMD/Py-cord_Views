@@ -1,7 +1,7 @@
 from discord.components import ComponentType
 from discord.ui import Select, Item
-from discord import MISSING, Emoji, PartialEmoji, Interaction
-from typing import Callable, Union
+from discord import MISSING, Emoji, PartialEmoji, Role
+from typing import Callable, Union, Optional, Any
 
 from .errors import NotCoroutineError, ComponentTypeError
 
@@ -16,15 +16,18 @@ class Menu:
         self.__selectMenu = selectmenu
         self.__menu_type: ComponentType = menu_type
 
-    def set_callable(self, _callable: Union[Callable, None]) -> "Menu":
+    def set_callable(self, _callable: Union[Callable, None],
+                     data: Optional[dict[str, Any]] = None,
+                     autorised_roles : Optional[list[Union[int, Role]]] = None,
+                     autorised_key: Optional[Callable] = None) -> "Menu":
         """
         Add a coroutine to the menu (same function on SelectMenu class)
-        This coroutine can have 2 parameters (X, interaction)
+        This coroutine can have 3 parameters (X, interaction, data)
         """
         if not isinstance(_callable, Callable):
             raise NotCoroutineError(_callable)
 
-        self.__selectMenu.set_callable(self.__menu.custom_id, _callable=_callable)
+        self.__selectMenu.set_callable(self.__menu.custom_id, _callable=_callable, data=data, autorised_roles=autorised_roles, autorised_key=autorised_key)
         return self
 
     def add_option(self, label: str, value: str = MISSING, description: Union[str, None] = None, emoji: Union[str, Emoji, PartialEmoji, None] = None, default: bool = False) -> "Menu":

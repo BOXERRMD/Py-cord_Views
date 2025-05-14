@@ -2,9 +2,9 @@
 from ..views.easy_modified_view import EasyModifiedViews
 from .menu import Menu
 
-from typing import Union, Callable, Any
+from typing import Union, Callable, Any, Optional
 from discord.components import ComponentType
-from discord import ChannelType, Member, ApplicationContext, Interaction
+from discord import ChannelType, Member, ApplicationContext, Interaction, Role
 from discord.abc import GuildChannel
 
 class SelectMenu:
@@ -99,13 +99,20 @@ class SelectMenu:
 
         return menu
 
-    def set_callable(self, *custom_ids: str, _callable: Union[Callable, None]) -> "SelectMenu":
+    def set_callable(self, *custom_ids: str,
+                     _callable: Union[Callable, None],
+                     data: Optional[dict[str, Any]] = None,
+                     autorised_roles : Optional[list[Union[int, Role]]] = None,
+                     autorised_key: Optional[Callable] = None) -> "SelectMenu":
         """
         Set a callable for menus associated with custom_ids
         :param custom_ids: IDs menus
         :param _callable: The coroutine to set for all menus
+        :param data: Add any data to pass in called function.
+        :param autorised_roles: Any role ID allowed to interact with the view
+        :param autorised_key: Callable function to check anything. The function get the current interaction passed in parameter
         """
-        self.__select_menu.set_callable(*custom_ids, _callable=_callable)
+        self.__select_menu.set_callable(*custom_ids, _callable=_callable, data=data, autorised_key=autorised_key, autorised_roles=autorised_roles)
         return self
 
     async def respond(self, ctx: Union[ApplicationContext, Interaction], *args, **kwargs) -> Any:
