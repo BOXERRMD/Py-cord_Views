@@ -14,7 +14,7 @@ class Pagination:
     Allows you to easily setup a view pagination
     """
 
-    def __init__(self, timeout: Union[float, None] = None, disabled_on_timeout: bool = False):
+    def __init__(self, timeout: Union[float, None] = None, disabled_on_timeout: bool = False, default_row: int = 0):
         """
         Initialisation for pagination
         :param timeout: The time before disable items on the view
@@ -22,11 +22,11 @@ class Pagination:
         """
         self.__view = EasyModifiedViews(timeout, disabled_on_timeout=disabled_on_timeout)
 
-        self.__view.add_items(Button(label='⏮', row=0, custom_id='back+', style=ButtonStyle.blurple))
-        self.__view.add_items(Button(label='◀', row=0, custom_id='back', style=ButtonStyle.blurple))
-        self.__view.add_items(Button(label='None', row=0, custom_id='counter', style=ButtonStyle.gray, disabled=True))
-        self.__view.add_items(Button(label='▶', row=0, custom_id='forward', style=ButtonStyle.blurple))
-        self.__view.add_items(Button(label='⏭', row=0, custom_id='forward+', style=ButtonStyle.blurple))
+        self.__view.add_items(Button(label='⏮', row=default_row, custom_id='back+', style=ButtonStyle.blurple))
+        self.__view.add_items(Button(label='◀', row=default_row, custom_id='back', style=ButtonStyle.blurple))
+        self.__view.add_items(Button(label='None', row=default_row, custom_id='counter', style=ButtonStyle.gray, disabled=True))
+        self.__view.add_items(Button(label='▶', row=default_row, custom_id='forward', style=ButtonStyle.blurple))
+        self.__view.add_items(Button(label='⏭', row=default_row, custom_id='forward+', style=ButtonStyle.blurple))
         self.__view.set_callable('back+', 'back', 'forward', 'forward+', _callable=self.__turn_page)
 
         self.__pages: list[Page] = []
