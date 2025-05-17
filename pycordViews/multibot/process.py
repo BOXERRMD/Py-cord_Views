@@ -3,6 +3,7 @@ from .errors import BotAlreadyExistError, BotNotFoundError, MultibotError, BotNo
 from .bot import DiscordBot
 from discord import Intents
 from immutableType import Str_
+from typing import Optional
 
 class ManageProcess:
 
@@ -19,6 +20,7 @@ class ManageProcess:
             "REMOVE": self.remove_bot_to_process,
             "START": self.start_bot_to_process,
             "STOP": self.stop_bot_to_process,
+            "RESTART": self.restart_bot_to_process,
             "IS_STARTED": self.is_started,
             "IS_READY": self.is_ready,
             "IS_WS_RATELIMITED": self.is_ws_ratelimited,
@@ -69,6 +71,17 @@ class ManageProcess:
         self.__bots[bot_name].stop()
         return f'{bot_name} bot stopped'
 
+    def restart_bot_to_process(self, bot_name: str) -> str:
+        """
+        Redémarre un bot du processus
+        :param bot_name: Le nom du bot à redémarrer
+        """
+        self.if_bot_no_exist(bot_name)
+        self.__bots[bot_name].stop()
+        self.__bots[bot_name].start()
+        self.__bots[bot_name].reload_pyFile_commands()
+        return f'{bot_name} bot restarted'
+
     def start_all_bot_to_process(self) -> list[str]:
         """
         Start tous les bots du processus
@@ -114,8 +127,8 @@ class ManageProcess:
         :param reload_command : Recharge toutes les commandes dans le fichier et les dépendances. Défaut : True
         """
         self.if_bot_no_exist(bot_name)
-        setup_function = Str_(setup_function).str_
         file = Str_(file).str_
+        setup_function = Str_(setup_function).str_
         self.__bots[bot_name].add_pyFile_commands(file=file, setup_function=setup_function, reload_command=reload_command)
 
     def modify_pyFile_commands(self, bot_name: str, file: str, setup_function: str):

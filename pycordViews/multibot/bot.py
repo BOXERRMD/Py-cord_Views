@@ -46,7 +46,13 @@ class DiscordBot:
         else:
             raise BotNotStartedError(self.__bot.user.name)
 
-    def add_pyFile_commands(self, file: str, setup_function: str, reload_command: bool):
+    async def __stop_bot_in_thread(self):
+        """
+        Clear le cache du bot de manière asynchrone
+        """
+        await self.__bot.close()
+
+    def add_pyFile_commands(self, file: str, reload_command: bool, setup_function: str):
         """
         Ajoute et charge un fichier de commande bot et ses dépendances.
         Les fichiers doivent avoir une fonction appelée « setup » ou un équivalent passé en paramètre.
@@ -75,17 +81,13 @@ class DiscordBot:
         Ne recharge que le fichier et non les commandes du bot !
         :param file: Le chemin d'accès relatif ou absolue du fichier
         """
-        print('ok')
         module_name = path.splitext(path.basename(file))[0]
         module_found = False
 
         # Mise à jour du module et de son setup
-        print(self.__imported_module)
         for imported in self.__imported_module:
-            print(imported['module'].__name__, module_name)
+
             if imported['module'].__name__ == module_name:
-                print('reload module :', module_name)
-                reload(imported['module'])
                 imported['setup_function'] = setup_function
                 module_found = True
                 break
@@ -95,7 +97,6 @@ class DiscordBot:
 
         # Supprimer toutes les commandes du bot
         for command in self.__bot.application_commands:
-            print('del commande', command.name)
             self.__bot.remove_application_command(command)
 
         # Réattacher toutes les commandes en réexécutant tous les setup
@@ -107,12 +108,59 @@ class DiscordBot:
                 reload_command=False
             )
 
+    def reload_pyFile_commands(self):
+        """
+        Recharge tous les fichiers de commandes du bot
+        """
+        for imported in self.__imported_module:
+            self.modify_pyFile_commands(imported['file'], imported['setup_function'])
+
+
+
+    def __call_setup_function_in_command_file(self, file: str, module, setup_function: str, reload_command: bool):
+        """
+        Appel la fonction de setup du module pour charger toutes les commandes du bot
+        :param file: Le chemin d'accès du fichier de commandes
+        :param module: Le module préchargé
+        :param setup_function: Le nom de la fonction de setup
+        :param reload_command: Si les commandes doivent être recharger sur le bot (envoie une requête à Discord) automatiquement
+        """
+        if hasattr(module, setup_function):  # si la fonction setup (ou autre) est dans le package
+            getattr(module, setup_function)(self.__bot)
+
+            ########## permet de modifier le dictionnaire des modules importés si celui-ci existe déjà, sinon il l'ajoute à la liste des dictionaires des modules importés. Utile car on reload tout si un des modules est modifié
+            find = False
+            for mod in self.__imported_module:
+                if mod['module'].__name__ == module.__name__:
+                    mod['setup_function'] = setup_function
+                    find = True
+                    break
+
+            if not find:
+                self.__imported_module.append({'setup_function': setup_function, 'module': module, 'file': file})
+            ##########
+
+            if reload_command:
+                self.reload_commands()
+        else:
+            raise SetupCommandFunctionNotFound(setup_function, file)
 
     def reload_commands(self, commands: Optional[list[ApplicationCommand]] = None):
         """
         Charge toutes les commandes du bot sur Discord
         """
         run_coroutine_threadsafe(self.__reload_commands(commands=commands), self.__loop).result(timeout=30)
+
+    async def __reload_commands(self, commands: Optional[list[ApplicationCommand]] = None):
+        """
+        Recharge les commandes quand le bot est ready
+        """
+        if self.__running_bot is not None:
+            while not self.is_ready:
+                await sleep(0.3)
+            await self.__bot.register_commands(commands=commands, method='individual', force=False)
+        else:
+            raise BotNotStartedError(self.__token)
 
 
     @property
@@ -135,12 +183,6 @@ class DiscordBot:
         return self.__bot.is_ws_ratelimited()
 
 
-    async def __stop_bot_in_thread(self):
-        """
-        Clear le cache du bot de manière asynchrone
-        """
-        await self.__bot.close()
-
     def close_ascyncio_loop(self):
         """
         Ferme la boucle asyncio
@@ -153,42 +195,4 @@ class DiscordBot:
 
         self.__loop.close()
 
-    async def __reload_commands(self, commands: Optional[list[ApplicationCommand]]):
-        """
-        Recharge les commandes quand le bot est ready
-        """
-        if self.__running_bot is not None:
-            while not self.is_ready:
-                await sleep(0.3)
-            await self.__bot.register_commands(commands=commands, method='individual', force=False)
-        else:
-            raise BotNotStartedError(self.__token)
-
-    def __call_setup_function_in_command_file(self, file: str, module, setup_function: str, reload_command: bool):
-        """
-        Appel la fonction de setup du module pour charger toutes les commandes du bot
-        :param file: Le chemin d'accès du fichier de commandes
-        :param module: Le module préchargé
-        :param setup_function: Le nom de la fonction de setup
-        :param reload_command: Si les commandes doivent être recharger sur le bot (envoie une requête à Discord) automatiquement
-        """
-        if hasattr(module, setup_function):  # si la fonction setup (ou autre) est dans le package
-            getattr(module, setup_function)(self.__bot)
-
-            ########## permet de modifier le dictionnaire des modules importés si celui-ci existe déjà, sinon il l'ajoute à la liste des dictionaires des modules importés. Utile car on reload tout si un des modules est modifié
-            find = False
-            for mod in self.__imported_module:
-                if mod['module'].__name__ == module.__name__:
-                    mod['setup_function'] = setup_function
-                    find = True
-                    break
-
-            if not find:
-                self.__imported_module.append({'setup_function': setup_function, 'module': module})
-            ##########
-
-            if reload_command:
-                self.reload_commands()
-        else:
-            raise SetupCommandFunctionNotFound(setup_function, file)
 

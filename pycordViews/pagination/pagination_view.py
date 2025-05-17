@@ -134,3 +134,7 @@ class Pagination:
         (start to 0)
         """
         return self.__current_page
+
+    @property
+    def get_view(self) -> EasyModifiedViews:
+        return self.__view

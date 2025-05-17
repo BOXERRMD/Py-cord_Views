@@ -3,7 +3,7 @@ from multiprocessing.queues import Queue
 from .process import ManageProcess
 from discord import Intents
 from sys import platform
-from typing import Union
+from typing import Union, Optional
 
 
 class Multibot:
@@ -84,6 +84,17 @@ class Multibot:
             self.__main_queue.put({'type': "STOP", 'bot_name': bot_name})
             results.append(self.__get_data_queue())
         return results
+
+    def restart(self, *bot_names: str) -> list[dict[str, str]]:
+        """
+        Stop and start bots.
+        This function is slow ! It's shutdown all bots properly.
+        """
+        results = []
+        for bot_name in bot_names:
+            self.__main_queue.put({'type': "RESTART", 'bot_name': bot_name})
+            results.append(self.__get_data_queue())
+        return results
     
     def start_all(self) -> list[dict[str, list[str]]]:
         """
@@ -148,7 +159,7 @@ class Multibot:
 
         :param bot_name: The bot's name to add commands file
         :param file: Relative or absolute commands file's path
-        :param setup_function: Function name called by the process to give the Bot instance.
+        :param setup_function: Function name called by the process to give the Bot instance. Set to 'setup' by default.
         :param reload_command: Reload all command in the fil and dependencies. Default : True
         """
         self.__main_queue.put({'type': "ADD_COMMAND_FILE",

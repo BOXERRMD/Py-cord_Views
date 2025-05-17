@@ -13,7 +13,7 @@ The paginator instance is used to create a view acting as a “book”, with pag
 > 
 > > **Method** `send(target: Union[Member, TextChannel]) -> Any` : Send the pagination in dm member or channels
 > 
-> > **Method** `respond(ctx: ApplicationContext) -> Any` : Respond at slash command call
+> > **Method** `respond(ctx: Union[ApplicationContext, Interaction]) -> Any` : Respond at slash command call
 > 
 > > **@property** `get_view -> EasyModifiedViews` : Return the pagination view. Can be used in `view` parameter to setup a view
 > 
@@ -41,7 +41,7 @@ async def pagination_command(ctx):
     pages.add_page(content="My last page !", embed=None)# reset embed else he show the embed of the page before
 
     await pages.respond(ctx=ctx) # respond to the command
-    await pages.send(send_to=ctx.author) # send the message to the command author
+    await pages.send(target=ctx.author) # send the message to the command author
 
 bot.run("Your token")
 ```
@@ -61,11 +61,12 @@ The SelectMenu instance is used to create drop-down menus that can be easily mod
 > 
 > > **Method** `add_mentionnable_select_menu(custom_id: str = None, placeholder: str = None, min_values: int = 1, max_values: int = 1, disabled=False, row=None) -> Menu` : Add a mentionable select menu in the ui. Return Menu instance to set options
 > 
-> > **Method** `set_callable(*custom_ids: str, _callable: Union[Callable, None], data: Optional[dict[str, Any]]) -> SelectMenu` : Set a callable for menus associated with custom_ids. This callable _(async function)_ will be set to respond at selected menus interactions. _data_ parameter is a dict fill with any values to pass in _(async function)_ parameters
+> > **Method** `set_callable(*custom_ids: str, _callable: Union[Callable, None], data: Optional[dict[str, Any]], autorised_roles : Optional[list[Union[int, Role]]] = None,
+                     autorised_key: Optional[Callable] = None) -> SelectMenu` : Set a callable for menus associated with custom_ids. This callable _(async function)_ will be set to respond at selected menus interactions. _data_ parameter is a dict fill with any values to pass in _(async function)_ parameters
 > 
 > > **Method** `send(target: Union[Member, TextChannel]) -> Any` : Send the selectmenu in dm member or channels
 > 
-> > **Method** `respond(ctx: ApplicationContext) -> Any` : Respond at slash command call
+> > **Method** `respond(ctx: Union[ApplicationContext, Interaction]) -> Any` : Respond at slash command call and Interaction
 > 
 > > **Method** `update() -> None` : Update the view dynamically if there was sent before. 
 > 
@@ -79,7 +80,10 @@ The SelectMenu instance is used to create drop-down menus that can be easily mod
 > ```python
 > Menu(...)` # Not to be initialized by the user
 > ```
-> > **Method** `set_callable(_callable: Union[Callable, None]) -> Menu` : Set a callable for menus associated. This callable _(async function)_ will be set to respond at selected menus interactions
+> > **Method** `set_callable(_callable: Union[Callable, None],
+                     data: Optional[dict[str, Any]] = None,
+                     autorised_roles : Optional[list[Union[int, Role]]] = None,
+                     autorised_key: Optional[Callable] = None) -> Menu` : Set a callable for menus associated. This callable _(async function)_ will be set to respond at selected menus interactions
 > 
 > > **Method** `add_option(label: str, value: str = MISSING, description: Union[str, None] = None, emoji: Union[str, Emoji, PartialEmoji, None] = None, default: bool = False) -> Menu` : Add a string select option. Only for string select menu !
 > 
@@ -136,6 +140,8 @@ Each instance of this class creates a process where bots can be added. These bot
 > > **Method** `start(*bot_names: str) -> list[dict[str, str]]` : Start bots
 > 
 > > **Method** `stop(*bot_names: str) -> list[dict[str, str]]` : Stop bots properly
+> 
+> > **Method** `restart(*bot_names: str) -> list[dict[str, str]]` : Restarts bots
 > 
 > > **Method** `start_all() -> list[dict[str, list[str]]]` : Start all bot in the process
 > 
