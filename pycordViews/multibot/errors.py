@@ -27,4 +27,8 @@ class SetupCommandFunctionNotFound(MultibotError):
 
 class CommandFileNotFoundError(MultibotError):
     def __init__(self, file_name: str):
-        super().__init__(f"'{file_name}' file not found ! Init commands impossible.")
+        super().__init__(f"'{file_name}' file not found ! Init commands impossible !")
+
+class ModuleNotFoundError(MultibotError):
+    def __init__(self, module_name: str):
+        super().__init__(f"{module_name} module not found !")

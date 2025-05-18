@@ -1,9 +1,9 @@
 from multiprocessing import Queue
-from .errors import BotAlreadyExistError, BotNotFoundError, MultibotError, BotNotStartedError
+from .errors import BotAlreadyExistError, BotNotFoundError, MultibotError, BotNotStartedError, ModuleNotFoundError
 from .bot import DiscordBot
 from discord import Intents
 from immutableType import Str_
-from typing import Optional
+from sys import modules
 
 class ManageProcess:
 
@@ -14,6 +14,7 @@ class ManageProcess:
         self.__bots: dict[str, DiscordBot] = {}
         self.main_queue: Queue = main_queue
         self.process_queue: Queue = process_queue
+        self.removed_modules: dict[str, "ModuleType"] = {}
 
         self.commandes = {
             "ADD": self.add_bot_to_process,
@@ -26,13 +27,16 @@ class ManageProcess:
             "IS_WS_RATELIMITED": self.is_ws_ratelimited,
             "STOPALL": self.stop_all_bot_to_process,
             "STARTALL": self.start_all_bot_to_process,
+            "RESTARTALL": self.restart_all_bot_to_process,
             "BOT_COUNT": self.bot_count,
             "STARTED_BOT_COUNT": self.started_bot_count,
             "SHUTDOWN_BOT_COUNT": self.shutdown_bot_count,
             "BOTS_bot_name": self.get_bots_bot_name,
             "RELOAD_COMMANDS": self.reload_all_commands,
             "ADD_COMMAND_FILE": self.add_pyFile_commands,
-            "MODIFY_COMMAND_FILE": self.modify_pyFile_commands
+            "MODIFY_COMMAND_FILE": self.modify_pyFile_commands,
+            "REMOVE_MODULES": self.remove_modules,
+            "ADD_MODULES": self.add_modules
         }
 
     def run(self):
@@ -81,6 +85,15 @@ class ManageProcess:
         self.__bots[bot_name].start()
         self.__bots[bot_name].reload_pyFile_commands()
         return f'{bot_name} bot restarted'
+
+    def restart_all_bot_to_process(self) -> list[str]:
+        """
+        Redémarre tous les bots du processus
+        """
+        result = []
+        for bot in self.__bots.keys():
+            result.append(self.restart_bot_to_process(bot))
+        return result
 
     def start_all_bot_to_process(self) -> list[str]:
         """
@@ -165,6 +178,33 @@ class ManageProcess:
         self.__bots[bot_name].close_ascyncio_loop()
         del self.__bots[bot_name]
         return f'Bot {bot_name} removed'
+
+    def remove_modules(self, modules_name: tuple[str]):
+        """
+        Enlève les modules (bibliothèque) de tous le processus (affecte donc les bots).
+        A éxécuter avant de lancer un bot !
+        :param modules_name: Tuple contenant les noms des modules à enlever
+        """
+        for module in modules_name:
+            if module in modules_name:
+                self.removed_modules[module] = modules.pop(module)
+            else:
+                raise ModuleNotFoundError(module)
+        return f"[{', '.join(modules_name)}] modules removed"
+
+    def add_modules(self, modules_name: tuple[str]):
+        """
+        Ajoute les modules (bibliothèque) de tous le processus (affecte donc les bots).
+        Uniquement les modules enlever au préalable peuvent-être de nouveau ajouter !
+        A éxécuter avant de lancer un bot !
+        :param modules_name: Tuple contenant les noms des modules à ajouter
+        """
+        for module in modules_name:
+            if module in self.removed_modules.keys():
+                modules[module] = self.removed_modules.pop(module)
+            else:
+                raise ModuleNotFoundError(module)
+        return f"[{', '.join(modules_name)}] modules added"
 
     def is_started(self, bot_name: str) -> bool:
         """

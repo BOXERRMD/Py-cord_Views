@@ -95,7 +95,15 @@ class Multibot:
             self.__main_queue.put({'type': "RESTART", 'bot_name': bot_name})
             results.append(self.__get_data_queue())
         return results
-    
+
+    def restart_all(self):
+        """
+        Stop and restart all bots
+        This function is slow ! It's shutdown all bots properly.
+        """
+        self.__main_queue.put({'type': "RESTARTALL"})
+        return self.__get_data_queue()
+
     def start_all(self) -> list[dict[str, list[str]]]:
         """
         Start all bots in the process.
@@ -109,6 +117,25 @@ class Multibot:
         This function is slow ! It's shutdown all bots properly.
         """
         self.__main_queue.put({'type': "STOPALL"})
+        return self.__get_data_queue()
+
+    def add_modules(self, *modules_name):
+        """
+        Adds modules (library) to the process (thus affecting bots).
+        Only previously removed modules can be added again!
+        To be run before launching a bot!
+        :param modules_name: names of modules to be added
+        """
+        self.__main_queue.put({'type': "ADD_MODULES", 'modules_name': modules_name})
+        return self.__get_data_queue()
+
+    def remove_modules(self, *modules_name):
+        """
+        Removes modules (library) to the process (thus affecting bots).
+        To be run before launching a bot!
+        :param modules_name: names of modules to be removed
+        """
+        self.__main_queue.put({'type': "REMOVE_MODULES", 'modules_name': modules_name})
         return self.__get_data_queue()
 
     def is_started(self, bot_name: str) -> bool:
