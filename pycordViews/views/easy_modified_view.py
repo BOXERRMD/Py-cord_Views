@@ -290,14 +290,14 @@ class EasyModifiedViews(View):
 
         await self._update()
 
-    def on_timeout(self) -> None:
+    async def on_timeout(self) -> None:
         """
         Called if timeout view is finished
         """
         if self.__disabled_on_timeout:
-            create_task(self.shutdown())
+            await self.shutdown()
         if self.__call_on_timeout is not None:
-            create_task(self.__call_on_timeout(self.__ctx))
+            await self.__call_on_timeout(self.__ctx)
 
     def call_on_timeout(self, _callable: Callable) -> None:
         """
