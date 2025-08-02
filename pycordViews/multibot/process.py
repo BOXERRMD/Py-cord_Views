@@ -4,6 +4,7 @@ from .bot import DiscordBot
 from discord import Intents
 from immutableType import Str_
 from sys import modules
+from os import system
 
 class ManageProcess:
 
@@ -189,7 +190,8 @@ class ManageProcess:
             if module in modules_name:
                 self.removed_modules[module] = modules.pop(module)
             else:
-                raise ModuleNotFoundError(module)
+                system(f"pip uninstall {module}")
+                #raise ModuleNotFoundError(module)
         return f"[{', '.join(modules_name)}] modules removed"
 
     def add_modules(self, modules_name: tuple[str]):
@@ -203,7 +205,8 @@ class ManageProcess:
             if module in self.removed_modules.keys():
                 modules[module] = self.removed_modules.pop(module)
             else:
-                raise ModuleNotFoundError(module)
+                system(f"pip install {module}")
+                #raise ModuleNotFoundError(module)
         return f"[{', '.join(modules_name)}] modules added"
 
     def is_started(self, bot_name: str) -> bool:

@@ -1,3 +1,4 @@
+from queue import Empty
 from multiprocessing import get_context
 from multiprocessing.queues import Queue
 from .process import ManageProcess
@@ -31,8 +32,10 @@ class Multibot:
         try:
             result = self.__process_queue.get(timeout=self.global_timeout)
             return result
-        except:
+        except Empty:
             return {'status': 'error', 'message': 'timeout request exceeded'}
+        except ValueError:
+            return {'status': 'critical error', 'message': 'queue was closed !'}
 
     def _start_process(self):
         """
