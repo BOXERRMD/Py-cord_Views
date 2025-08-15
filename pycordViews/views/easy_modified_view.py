@@ -118,7 +118,7 @@ class EasyModifiedViews(View):
         :param custom_id: item ID of the view
         :param data: Add any data to pass in called function.
         :param autorised_roles: Any role ID allowed to interact with the view
-        :param autorised_key: Callable function to check anything. The function get the current interaction passed in parameter
+        :param autorised_key: Callable function to check anything. The function get the current interaction and data passed in parameter
         """
 
         def decorator(_callable: Callable):
@@ -142,7 +142,7 @@ class EasyModifiedViews(View):
         :param _callable: The asynchronous callable linked. Take UI (Button, Select...) and Interaction parameters.
         :param data: Add any data to pass in called function.
         :param autorised_roles: Any role ID allowed to interact with the view
-        :param autorised_key: Callable function to check anything. The function get the current interaction passed in parameter
+        :param autorised_key: Callable function to check anything. The function get the current interaction and data passed in parameter
 
         **UI, Interaction and data parameter is required in callable function !**
 
@@ -191,7 +191,7 @@ class EasyModifiedViews(View):
                     return False
 
             if autorised_key is not None: # si une fonction est config pour la vérification
-                if not autorised_key(interaction): # Si la fonction renvoie False
+                if not autorised_key(interaction, data): # Si la fonction renvoie False
                     return False
 
             return await func(self.__callback[interaction.custom_id]['ui'], interaction, data)
