@@ -103,14 +103,14 @@ class EasyModifiedViews(View):
         """
         Decorator to set up a callable for the item
 
-        **Interaction parameter is required in coroutine function !**
+        **Ui, Interaction and data parameters is required in coroutine function !**
 
         view = EasyModifiedViews(None)
         view.add_view(discord.ui.Button(label='coucou', custom_id='test_ID'))
 
         @view.set_callable_decorator(custom_id='test_ID')
 
-        async def rep(**UI**, **interaction**):
+        async def rep(**UI**, **interaction**, data):
             await interaction.response.send_message('coucou !!!')
 
         await ctx.respond('coucou', view=view)
@@ -144,7 +144,7 @@ class EasyModifiedViews(View):
         :param autorised_roles: Any role ID allowed to interact with the view
         :param autorised_key: Callable function to check anything. The function get the current interaction passed in parameter
 
-        **UI and Interaction parameter is required in callable function !**
+        **UI, Interaction and data parameter is required in callable function !**
 
         view = EasyModifiedViews(None)
 
