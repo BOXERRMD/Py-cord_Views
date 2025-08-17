@@ -149,7 +149,7 @@ class DiscordBot:
         """
         Charge toutes les commandes du bot sur Discord
         """
-        run_coroutine_threadsafe(self.__reload_commands(commands=commands), self.__loop).result(timeout=30)
+        run_coroutine_threadsafe(self.__reload_commands(commands=commands), self.__loop).result(timeout=60)
 
     async def __reload_commands(self, commands: Optional[list[ApplicationCommand]] = None):
         """

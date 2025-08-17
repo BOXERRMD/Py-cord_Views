@@ -135,7 +135,7 @@ Each instance of this class creates a process where bots can be added. These bot
 > ```
 > > **Method** `add_bot(bot_name: str, token: str, intents: Intents) -> None` : Add a bot. The name given here is not the real bot name, it's juste an ID
 > 
-> > **Method** `remove_bot(bot_name: str) -> dict[str, str]` : Remove à bot. If the bot is online, it will turn off properly. It can take a long time !
+> > **Method** `remove_bots(bot_names: str) -> list[dict[str, str]]` : Remove bots. If bots are online, they will turn off properly. It can take a long time !
 > 
 > > **Method** `start(*bot_names: str) -> list[dict[str, str]]` : Start bots
 > 
@@ -143,9 +143,15 @@ Each instance of this class creates a process where bots can be added. These bot
 > 
 > > **Method** `restart(*bot_names: str) -> list[dict[str, str]]` : Restarts bots
 > 
+> > **Method** `restart_all() -> list[dict[str, str]]` : Restarts all bots in the process
+> 
 > > **Method** `start_all() -> list[dict[str, list[str]]]` : Start all bot in the process
 > 
 > > **Method** `stop_all() -> list[dict[str, list[str]]]` : Stop all bot in the process properly
+> 
+> > **Method** `add_modules(*modules_name: str) -> list[dict[str, str]]` : Add a module to the process. It can be only a package to download from pypi. Install the package for all bots in the process.
+> 
+> > **Method** `remove_modules(*modules_name: str) -> list[dict[str, str]]` : Remove a module from the process. It can be only a package to download from pypi. Uninstall the package for all bots in the process. If modules was used by a bot, an error was raised when the bot attempt to use it.
 > 
 > > **Method** `is_started(bot_name: str) -> bool` : Return if the bot is connected at the Discord WebSocket
 > 

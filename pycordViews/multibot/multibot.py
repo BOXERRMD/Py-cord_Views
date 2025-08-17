@@ -25,17 +25,22 @@ class Multibot:
         
         self.global_timeout = global_timeout
         
-    def __get_data_queue(self) -> Union[list[dict], dict]:
+    def __get_data_queue(self, type: str) -> Union[list[dict], dict]:
         """
         Récupère les données dans la queue processus
+        :param type: Type de la requête. Si elle ne correspond pas à la requête écoutée, elle refera un cicle d'écoute
         """
         try:
             result = self.__process_queue.get(timeout=self.global_timeout)
-            return result
+            if result['type'] == type:
+                return result
+            else:
+                # Si le type ne correspond pas, on relance la récupération
+                return self.__get_data_queue(type)
         except Empty:
             return {'status': 'error', 'message': 'timeout request exceeded'}
         except ValueError:
-            return {'status': 'critical error', 'message': 'queue was closed !'}
+            return {'status': 'critical error', 'message': 'queue was closed ! Process was killed ?'}
 
     def _start_process(self):
         """
@@ -51,17 +56,24 @@ class Multibot:
         :param token: Token bot
         :param intents: Intents bot to Intents discord class
         """
-        self.__main_queue.put({"type": "ADD", "bot_name": bot_name, "token": token, 'intents': intents})
-        response = self.__get_data_queue()
+        request_type = "ADD"
+        self.__main_queue.put({"type": request_type,
+                               "bot_name": bot_name,
+                               "token": token,
+                               "intents": intents})
+        response = self.__get_data_queue(request_type)
         return response  # Retourne le statut de l'ajout
 
-    def remove_bot(self, bot_name: str) -> dict[str, str]:
+    def remove_bots(self, *bot_names: str) -> list[dict[str, str]]:
         """
-        Shutdown and remove à bot
-        :param bot_name: Bot name to remove
+        Shutdown and remove bots
+        :param bot_names: Bot name to remove
         """
-        self.__main_queue.put({"type": "REMOVE", "bot_name": bot_name})
-        response = self.__get_data_queue()
+        request_type = "REMOVE"
+        response = []
+        for bot_name in bot_names:
+            self.__main_queue.put({"type": request_type, "bot_name": bot_name})
+            response.append(self.__get_data_queue(request_type))
         return response  # Retourne le statut de la suppression
 
     def start(self, *bot_names: str) -> list[dict[str, str]]:
@@ -70,10 +82,11 @@ class Multibot:
         :param bot_names: Bots name to start
         :return: List of data bot status
         """
+        request_type = "START"
         results = []
         for bot_name in bot_names:
-            self.__main_queue.put({'type': "START", 'bot_name': bot_name})
-            results.append(self.__get_data_queue())
+            self.__main_queue.put({'type': request_type, 'bot_name': bot_name})
+            results.append(self.__get_data_queue(request_type))
         return results
 
     def stop(self, *bot_names: str) -> list[dict[str, str]]:
@@ -82,10 +95,11 @@ class Multibot:
         :param bot_names: Bots name to start
         :return: Data status dict
         """
+        request_type = "STOP"
         results = []
         for bot_name in bot_names:
-            self.__main_queue.put({'type': "STOP", 'bot_name': bot_name})
-            results.append(self.__get_data_queue())
+            self.__main_queue.put({'type': request_type, 'bot_name': bot_name})
+            results.append(self.__get_data_queue(request_type))
         return results
 
     def restart(self, *bot_names: str) -> list[dict[str, str]]:
@@ -93,10 +107,11 @@ class Multibot:
         Stop and start bots.
         This function is slow ! It's shutdown all bots properly.
         """
+        request_type = "RESTART"
         results = []
         for bot_name in bot_names:
-            self.__main_queue.put({'type': "RESTART", 'bot_name': bot_name})
-            results.append(self.__get_data_queue())
+            self.__main_queue.put({'type': request_type, 'bot_name': bot_name})
+            results.append(self.__get_data_queue(request_type))
         return results
 
     def restart_all(self):
@@ -104,23 +119,26 @@ class Multibot:
         Stop and restart all bots
         This function is slow ! It's shutdown all bots properly.
         """
-        self.__main_queue.put({'type': "RESTARTALL"})
-        return self.__get_data_queue()
+        request_type = "RESTARTALL"
+        self.__main_queue.put({'type': request_type})
+        return self.__get_data_queue(request_type)
 
     def start_all(self) -> list[dict[str, list[str]]]:
         """
         Start all bots in the process.
         """
-        self.__main_queue.put({'type': "STARTALL"})
-        return self.__get_data_queue()
+        request_type = "STARTALL"
+        self.__main_queue.put({'type': request_type})
+        return self.__get_data_queue(request_type)
     
     def stop_all(self) -> list[dict[str, list[str]]]:
         """
         Stop all bots in the process.
         This function is slow ! It's shutdown all bots properly.
         """
-        self.__main_queue.put({'type': "STOPALL"})
-        return self.__get_data_queue()
+        request_type = "STOPALL"
+        self.__main_queue.put({'type': request_type})
+        return self.__get_data_queue(request_type)
 
     def add_modules(self, *modules_name):
         """
@@ -129,8 +147,9 @@ class Multibot:
         To be run before launching a bot!
         :param modules_name: names of modules to be added
         """
-        self.__main_queue.put({'type': "ADD_MODULES", 'modules_name': modules_name})
-        return self.__get_data_queue()
+        request_type = "ADD_MODULES"
+        self.__main_queue.put({'type': request_type, 'modules_name': modules_name})
+        return self.__get_data_queue(request_type)
 
     def remove_modules(self, *modules_name):
         """
@@ -138,8 +157,9 @@ class Multibot:
         To be run before launching a bot!
         :param modules_name: names of modules to be removed
         """
-        self.__main_queue.put({'type': "REMOVE_MODULES", 'modules_name': modules_name})
-        return self.__get_data_queue()
+        request_type = "REMOVE_MODULES"
+        self.__main_queue.put({'type': request_type, 'modules_name': modules_name})
+        return self.__get_data_queue(request_type)
 
     def is_started(self, bot_name: str) -> bool:
         """
@@ -147,8 +167,9 @@ class Multibot:
         :param bot_name: Bot name
         :return: True if the Websocket is online, else False
         """
-        self.__main_queue.put({'type': "IS_STARTED", 'bot_name': bot_name})
-        return self.__get_data_queue()['message']
+        request_type = "IS_STARTED"
+        self.__main_queue.put({'type': request_type, 'bot_name': bot_name})
+        return self.__get_data_queue(request_type)['message']
 
     def is_ready(self, bot_name: str) -> bool:
         """
@@ -156,8 +177,9 @@ class Multibot:
         :param bot_name: Bot name
         :return: True if the bot if ready, else False
         """
-        self.__main_queue.put({'type': "IS_READY", 'bot_name': bot_name})
-        return self.__get_data_queue()['message']
+        request_type = "IS_READY"
+        self.__main_queue.put({'type': request_type, 'bot_name': bot_name})
+        return self.__get_data_queue(request_type)['message']
 
     def is_ws_ratelimited(self, bot_name: str) -> bool:
         """
@@ -165,18 +187,20 @@ class Multibot:
         :param bot_name: Bot name
         :return: True if the bot was ratelimited, else False
         """
-        self.__main_queue.put({'type': "IS_WS_RATELIMITED", 'bot_name': bot_name})
-        return self.__get_data_queue()['message']
+        request_type = "IS_WS_RATELIMITED"
+        self.__main_queue.put({'type': request_type, 'bot_name': bot_name})
+        return self.__get_data_queue(request_type)['message']
 
     def reload_commands(self, *bot_names: str) -> list[dict[str, str]]:
         """
         Reload all commands for each bot when bots are ready
         :param bot_names: Bots name to reload commands
         """
+        request_type = "RELOAD_COMMANDS"
         result = []
         for name in bot_names:
-            self.__main_queue.put({'type': "RELOAD_COMMANDS", 'name': name})
-            result.append(self.__get_data_queue())
+            self.__main_queue.put({'type': request_type, 'name': name})
+            result.append(self.__get_data_queue(request_type))
         return result
 
     def add_pyFile_commands(self, bot_name: str, file: str, setup_function: str = 'setup', reload_command: bool = True) -> dict[str, str]:
@@ -192,12 +216,13 @@ class Multibot:
         :param setup_function: Function name called by the process to give the Bot instance. Set to 'setup' by default.
         :param reload_command: Reload all command in the fil and dependencies. Default : True
         """
-        self.__main_queue.put({'type': "ADD_COMMAND_FILE",
+        request_type = "ADD_COMMAND_FILE"
+        self.__main_queue.put({'type': request_type,
                                'bot_name': bot_name,
                                'file': file,
                                'setup_function': setup_function,
                                'reload_command': reload_command})
-        return self.__get_data_queue()
+        return self.__get_data_queue(request_type)
 
     def modify_pyFile_commands(self, bot_name: str, file: str, setup_function: str = 'setup') -> dict[str, str]:
 
@@ -207,41 +232,45 @@ class Multibot:
         :param bot_name: The bot's name
         :param file: The file's relative or absolute path
         """
-
-        self.__main_queue.put({'type': "MODIFY_COMMAND_FILE",
+        request_type = "MODIFY_COMMAND_FILE"
+        self.__main_queue.put({'type': request_type,
                                'bot_name': bot_name,
                                'file': file,
                                'setup_function': setup_function})
-        return self.__get_data_queue()
+        return self.__get_data_queue(request_type)
 
     @property
     def bot_count(self) -> int:
         """
         Return the total number of bots
         """
-        self.__main_queue.put({'type': "BOT_COUNT"})
-        return self.__get_data_queue()['message']
+        request_type = "BOT_COUNT"
+        self.__main_queue.put({'type': request_type})
+        return self.__get_data_queue(request_type)['message']
 
     @property
     def started_bot_count(self) -> int:
         """
         Return the total number of started bots
         """
-        self.__main_queue.put({'type': "STARTED_BOT_COUNT"})
-        return self.__get_data_queue()['message']
+        request_type = "STARTED_BOT_COUNT"
+        self.__main_queue.put({'type': request_type})
+        return self.__get_data_queue(request_type)['message']
 
     @property
     def shutdown_bot_count(self) -> int:
         """
         Return the total number of shutdown bots
         """
-        self.__main_queue.put({'type': "SHUTDOWN_BOT_COUNT"})
-        return self.__get_data_queue()['message']
+        request_type = "SHUTDOWN_BOT_COUNT"
+        self.__main_queue.put({'type': request_type})
+        return self.__get_data_queue(request_type)['message']
 
     @property
     def get_bots_name(self) -> list[str]:
         """
         Return all bots name (not real name of bots)
         """
-        self.__main_queue.put({'type': "BOTS_NAME"})
-        return self.__get_data_queue()['message']
+        request_type = "BOTS_NAME"
+        self.__main_queue.put({'type': request_type})
+        return self.__get_data_queue(request_type)['message']

@@ -50,14 +50,14 @@ class ManageProcess:
                 command: dict = self.main_queue.get()
                 #print(command)
 
-                c = command["type"]
-                if c in self.commandes.keys():
+                type_request = command["type"]
+                if type_request in self.commandes.keys():
                     del command['type']
                     try:
-                        result = self.commandes[c](**command)
-                        self.process_queue.put({'status': 'success', 'message': result})
+                        result = self.commandes[type_request](**command)
+                        self.process_queue.put({'status': 'success', 'message': result, 'type': type_request})
                     except MultibotError as e:
-                        self.process_queue.put({'status': 'error', 'message': e})
+                        self.process_queue.put({'status': 'error', 'message': e, 'type': type_request})
 
     def start_bot_to_process(self, bot_name: str) -> str:
         """
