@@ -5,7 +5,7 @@ with open("README.md", encoding='utf-8') as file:
 
 setup(
     name="PycordViews",
-    version="1.3.6.1",
+    version="1.3.6.2",
     url="https://github.com/BOXERRMD/Py-cord_Views",
     author="Chronos (alias BOXERRMD)",
     author_email="vagabonwalybi@gmail.com",
@@ -25,7 +25,8 @@ setup(
         "Programming Language :: Python :: 3.9"
     ],
     install_requires=[
-        "immutable-Python-type"
+        "immutable-Python-type",
+        "psutil"
     ],
     packages=['pycordViews', 'pycordViews/pagination', 'pycordViews/views', 'pycordViews/menu', 'pycordViews/multibot', 'pycordViews/kit', 'pycordViews/modal'],
     python_requires='>=3.9'

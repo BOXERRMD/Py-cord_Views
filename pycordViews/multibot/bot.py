@@ -77,7 +77,7 @@ class DiscordBot:
 
     def modify_pyFile_commands(self, file: str, setup_function: str):
         """
-        Modifie un fichier de comandes et le recharge.
+        Modifie un fichier de commandes et le recharge.
         Ne recharge que le fichier et non les commandes du bot !
         :param file: Le chemin d'accès relatif ou absolue du fichier
         """

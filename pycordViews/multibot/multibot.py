@@ -199,7 +199,7 @@ class Multibot:
         request_type = "RELOAD_COMMANDS"
         result = []
         for name in bot_names:
-            self.__main_queue.put({'type': request_type, 'name': name})
+            self.__main_queue.put({'type': request_type, 'bot_name': name})
             result.append(self.__get_data_queue(request_type))
         return result
 
@@ -231,6 +231,7 @@ class Multibot:
         Reloads only the file, not the bot commands!
         :param bot_name: The bot's name
         :param file: The file's relative or absolute path
+        :param setup_function: Function name called by the process to give the Bot instance. Set to 'setup' by default.
         """
         request_type = "MODIFY_COMMAND_FILE"
         self.__main_queue.put({'type': request_type,

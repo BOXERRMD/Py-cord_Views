@@ -5,6 +5,7 @@ from discord import Intents
 from immutableType import Str_
 from sys import modules
 from os import system
+from psutil import Process
 
 class ManageProcess:
 
@@ -16,6 +17,8 @@ class ManageProcess:
         self.main_queue: Queue = main_queue
         self.process_queue: Queue = process_queue
         self.removed_modules: dict[str, "ModuleType"] = {}
+        self.allow_create_subprocess: bool = True
+        self.process: Process = Process()
 
         self.commandes = {
             "ADD": self.add_bot_to_process,
@@ -37,7 +40,8 @@ class ManageProcess:
             "ADD_COMMAND_FILE": self.add_pyFile_commands,
             "MODIFY_COMMAND_FILE": self.modify_pyFile_commands,
             "REMOVE_MODULES": self.remove_modules,
-            "ADD_MODULES": self.add_modules
+            "ADD_MODULES": self.add_modules,
+            "ALLOW_SUBPROCESS": self.allow_subprocess
         }
 
     def run(self):
@@ -45,6 +49,7 @@ class ManageProcess:
         Boucle principale du processus, écoute la queue principale.
         Doit comporter aubligatoirement un dictionnaire avec la clé 'type'
         """
+        wait_for = 0  # secondes avant de forcer la fermeture des subprocess
         while True:
             if not self.main_queue.empty():
                 command: dict = self.main_queue.get()
@@ -58,6 +63,16 @@ class ManageProcess:
                         self.process_queue.put({'status': 'success', 'message': result, 'type': type_request})
                     except MultibotError as e:
                         self.process_queue.put({'status': 'error', 'message': e, 'type': type_request})
+
+            if not self.allow_create_subprocess and wait_for > 50000 and (childrens_process := self.process.children()):
+                for i in childrens_process:
+                    try:
+                        i.kill()
+                    except Exception:
+                        pass
+                    finally:
+                        wait_for = 0
+            wait_for += 1
 
     def start_bot_to_process(self, bot_name: str) -> str:
         """
@@ -156,6 +171,15 @@ class ManageProcess:
         file = Str_(file).str_
         self.__bots[bot_name].modify_pyFile_commands(file=file, setup_function=setup_function)
 
+    def remove_pyFile_commands(self, bot_name: str, file: str):
+        """
+        Enlève un fichier de commandes et toutes ses commandes du bot.
+        :param bot_name: Le nom du bot
+        :param file: Le chemin d'accès relatif ou absolue du fichier
+        """
+        self.if_bot_no_exist(bot_name)
+        file = Str_(file).str_
+        self.__bots[bot_name].remove_pyFile_commands(file=file)
 
     def reload_all_commands(self, bot_name: str):
         """
@@ -271,3 +295,13 @@ class ManageProcess:
         Renvoie tous les noms des bots entrée par l'utilisateur
         """
         return list(self.__bots.keys())
+
+    def allow_subprocess(self, allow: bool) -> str:
+        """
+        Permet ou non l'utilisation de subprocess dans les bots.
+        ATTENTION : Peut poser des problèmes de sécurité si un utilisateur malveillant à accès au code.
+        Par défaut, False.
+        :param allow: True pour autoriser, False pour interdire
+        """
+        self.allow_create_subprocess = allow
+        return f'Subprocess allowed: {allow}'

@@ -1,6 +1,10 @@
 # Py-cord_Views
  Views for py-cord library
 
+DO NOT USE **MULTIBOT** CLASS FOR COMMERCIAL PURPOSES! 
+BOTS ARE NOT SEPARATED FROM EACH OTHER WHEN THEY ARE IN THE SAME PROCESS. 
+EACH BOT CAN ACCESS INFORMATION FROM OTHER BOTS CONTAINED IN THE SAME PROCESS.
+
 # Paginator
 The paginator instance is used to create a view acting as a “book”, with pages that can be turned using buttons.
 ## `Paginator`
@@ -192,6 +196,8 @@ Each instance of this class creates a process where bots can be added. These bot
 > > ```
 > 
 > > **Method** `modify_pyFile_commands(bot_name: str, file: str, setup_function: str = 'setup') -> dict[str, str]` : Modify python discord command file and setup function. This method doesn't reload automatically commands on the bot. Use `reload_commands` after. `file` parameter require a file path, absolute or not.
+>
+> > **Method** `allow_subprocess(allow: bool) -> dict[str, str]` : Allow or disallow the use of subprocess to all bots in the current process. By default, it's allowed.
 > 
 > > **@property** `bot_count -> int` : Return the total number of bots
 > 
