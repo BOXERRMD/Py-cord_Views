@@ -1,5 +1,5 @@
 from ..views.easy_modified_view import EasyModifiedViews
-from discord import ButtonStyle, Interaction, TextChannel, Member, ApplicationContext, File, Embed
+from discord import ButtonStyle, Interaction, TextChannel, Member, ApplicationContext, File, Embed, Role
 from discord.ui import Button
 from .errors import PageNumberNotFound
 from .page import Page
@@ -14,11 +14,18 @@ class Pagination:
     Allows you to easily setup a view pagination
     """
 
-    def __init__(self, timeout: Union[float, None] = None, disabled_on_timeout: bool = False, default_row: int = 0):
+    def __init__(self, timeout: Union[float, None] = None,
+                 disabled_on_timeout: bool = False,
+                 default_row: int = 0,
+                 autorised_roles: Optional[list[Union[Role, int]]] = None,
+                 autorised_key: Optional[callable] = None):
         """
         Initialisation for pagination
         :param timeout: The time before disable items on the view
         :param disabled_on_timeout: If timeout is done, disable all items
+        :param default_row: The default row for the pagination buttons
+        :param autorised_roles: List of roles allowed to use the pagination
+        :param autorised_key: A function that takes an Interaction and returns True if the user is authorized to use the pagination, False otherwise.
         """
         self.__view = EasyModifiedViews(timeout, disabled_on_timeout=disabled_on_timeout)
 
@@ -27,7 +34,7 @@ class Pagination:
         self.__view.add_items(Button(label='None', row=default_row, custom_id='counter', style=ButtonStyle.gray, disabled=True))
         self.__view.add_items(Button(label='▶', row=default_row, custom_id='forward', style=ButtonStyle.blurple))
         self.__view.add_items(Button(label='⏭', row=default_row, custom_id='forward+', style=ButtonStyle.blurple))
-        self.__view.set_callable('back+', 'back', 'forward', 'forward+', _callable=self.__turn_page)
+        self.__view.set_callable('back+', 'back', 'forward', 'forward+', _callable=self.__turn_page, autorised_key=autorised_key, autorised_roles=autorised_roles)
 
         self.__pages: list[Page] = []
         self.__current_page: int = 0

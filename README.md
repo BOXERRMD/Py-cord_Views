@@ -9,7 +9,8 @@ EACH BOT CAN ACCESS INFORMATION FROM OTHER BOTS CONTAINED IN THE SAME PROCESS.
 The paginator instance is used to create a view acting as a “book”, with pages that can be turned using buttons.
 ## `Paginator`
 > ```python
-> Paginator(timeout: Union[float, None] = None, disabled_on_timeout: bool = False)`
+> Paginator(timeout: Union[float, None] = None, disabled_on_timeout: bool = False, autorised_roles: Optional[list[Union[Role, int]]] = None,
+                 autorised_key: Optional[callable] = None)`
 > ```
 > > **Method** `add_page(*args, **kwargs) -> Pagination` : add a new page with send message function parameters _(content, embed, embeds, files...)_
 >
