@@ -26,23 +26,22 @@ class Back:
         self.kwargs_function: dict = {}
 
         # get the calling function
-        function_frame = currentframe().f_back
-        call_function_frame = function_frame.f_back
-        name = function_frame.f_code.co_name
-        self.back_function: Union[Callable] = call_function_frame.f_globals.get(name) or call_function_frame.f_locals.get(name)
+        self.back_function: Union[Callable] = None
 
         self.__view = EasyModifiedViews(timeout=timeout, disabled_on_timeout=disabled_on_timeout)
         self.__view.add_items(Button(label='⏪ Back', row=row, custom_id='back', style=ButtonStyle.gray))
         self.__view.set_callable('back', _callable=self._back, autorised_roles=autorised_roles, autorised_key=autorised_key)
 
-    def set_parameters(self, *args, **kwargs):
+    def set_parameters(self, *args, function: Callable, **kwargs):
         """
         Set the parameters to recall the function
         :param args: The args to save
         :param kwargs: The kwargs to save
+        :param function: The asynchronous function to call back
         """
         self.args_function = args
         self.kwargs_function = kwargs
+        self.back_function = function
 
     async def _back(self, button: Button, interaction: Interaction, data: dict[str, Any]):
         """
