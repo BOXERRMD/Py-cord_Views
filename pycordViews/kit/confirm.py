@@ -1,6 +1,6 @@
 from typing import Optional, Union
 from ..views.easy_modified_view import EasyModifiedViews
-from discord import Interaction, ButtonStyle, Role
+from discord import Interaction, ButtonStyle, Role, NotFound
 from discord.ui import Button
 from asyncio import wait_for, Future, get_event_loop, TimeoutError
 
@@ -34,8 +34,11 @@ class Confirm:
         if not self.__future.done():
             self.__future.set_result(True)
         if self.__disable_on_click:
-            await self.__view.disable_items('Confirm_confirm', 'Confirm_denied')
-        await interaction.response.defer()
+            try:
+                await self.__view.disable_items('Confirm_confirm', 'Confirm_denied')
+            except NotFound: # if it's an ephemeral message
+                pass
+        await interaction.response.defer(invisible=True)
 
     async def _denied(self, button: Button, interaction: Interaction):
         """
@@ -44,8 +47,11 @@ class Confirm:
         if not self.__future.done():
             self.__future.set_result(False)
         if self.__disable_on_click:
-            await self.__view.disable_items('Confirm_confirm', 'Confirm_denied')
-        await interaction.response.defer()
+            try:
+                await self.__view.disable_items('Confirm_confirm', 'Confirm_denied')
+            except NotFound: # if it's an ephemeral message
+                pass
+        await interaction.response.defer(invisible=True)
 
     async def wait_for_response(self) -> Optional[bool]:
         """
