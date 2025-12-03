@@ -48,6 +48,8 @@ class Back:
         Base asynchronous _back function called when button is pressed
         """
         await interaction.response.defer()
+        if self.back_function is None:
+            raise ValueError("No function has been set for the back button. Use the 'set_parameters' method to set a function.")
         await self.back_function(*self.args_function, **self.kwargs_function)
 
     @property
