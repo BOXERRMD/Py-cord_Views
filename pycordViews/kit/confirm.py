@@ -1,13 +1,17 @@
-from typing import Optional
+from typing import Optional, Union
 from ..views.easy_modified_view import EasyModifiedViews
-from discord import Interaction, ButtonStyle
+from discord import Interaction, ButtonStyle, Role
 from discord.ui import Button
 from asyncio import wait_for, Future, get_event_loop, TimeoutError
 
 
 class Confirm:
 
-    def __init__(self, timeout: Optional[float] = None, disable_on_click: bool = False):
+    def __init__(self, timeout: Optional[float] = None,
+                 disable_on_click: bool = False,
+                 autorised_roles: Optional[list[Union[Role, int]]] = None,
+                 autorised_key: Optional[callable] = None
+                 ):
         """
         Init a Confirm class instance kit.
         :param timeout: Time before end the view
@@ -18,8 +22,8 @@ class Confirm:
         self.__button_confirm: Button = Button(label='Confirm', emoji='✅', style=ButtonStyle.green, custom_id='Confirm_confirm')
         self.__button_denied: Button = Button(label='Denied', emoji='❌', style=ButtonStyle.gray, custom_id='Confirm_denied')
         self.__view.add_items(self.__button_confirm, self.__button_denied)
-        self.__view.set_callable(self.__button_confirm.custom_id, _callable=self._confirm)
-        self.__view.set_callable(self.__button_denied.custom_id, _callable=self._denied)
+        self.__view.set_callable(self.__button_confirm.custom_id, _callable=self._confirm, autorised_key=autorised_key, autorised_roles=autorised_roles)
+        self.__view.set_callable(self.__button_denied.custom_id, _callable=self._denied, autorised_key=autorised_key, autorised_roles=autorised_roles)
 
         self.__future: Future = get_event_loop().create_future()
 
@@ -52,14 +56,14 @@ class Confirm:
             return await wait_for(self.__future, timeout=self.__timeout)
 
         except TimeoutError:
-            return None
+            return False
 
     async def _on_timeout(self, ctx):
         """
         Called when the timeout is reached to end the Future
         """
         if not self.__future.done():
-            self.__future.set_result(None)
+            self.__future.set_result(False)
 
     @property
     def get_view(self) -> EasyModifiedViews:
