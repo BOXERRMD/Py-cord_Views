@@ -51,6 +51,7 @@ class Back:
         await interaction.response.defer()
         await self.back_function(*self.args_function, **self.kwargs_function)
 
+    @property
     def get_view(self) -> EasyModifiedViews:
         """
         Get the view with the back button
