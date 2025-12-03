@@ -40,7 +40,7 @@ class Confirm:
                 pass
         await interaction.response.defer(invisible=True)
 
-    async def _denied(self, button: Button, interaction: Interaction):
+    async def _denied(self, button: Button, interaction: Interaction, data):
         """
         Base asynchronous _denied function called when button is pressed
         """
