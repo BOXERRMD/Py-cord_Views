@@ -9,6 +9,7 @@ class Confirm:
 
     def __init__(self, timeout: Optional[float] = None,
                  disable_on_click: bool = False,
+                 row: int = 0,
                  autorised_roles: Optional[list[Union[Role, int]]] = None,
                  autorised_key: Optional[callable] = None
                  ):
@@ -19,8 +20,8 @@ class Confirm:
         self.__timeout: float = timeout
         self.__disable_on_click: bool = disable_on_click
         self.__view: EasyModifiedViews = EasyModifiedViews(disabled_on_timeout=True, timeout=timeout, call_on_timeout=self._on_timeout)
-        self.__button_confirm: Button = Button(label='Confirm', emoji='✅', style=ButtonStyle.green, custom_id='Confirm_confirm')
-        self.__button_denied: Button = Button(label='Denied', emoji='❌', style=ButtonStyle.gray, custom_id='Confirm_denied')
+        self.__button_confirm: Button = Button(label='Confirm', emoji='✅', style=ButtonStyle.green, custom_id='Confirm_confirm', row=row)
+        self.__button_denied: Button = Button(label='Denied', emoji='❌', style=ButtonStyle.gray, custom_id='Confirm_denied', row=row)
         self.__view.add_items(self.__button_confirm, self.__button_denied)
         self.__view.set_callable(self.__button_confirm.custom_id, _callable=self._confirm, autorised_key=autorised_key, autorised_roles=autorised_roles)
         self.__view.set_callable(self.__button_denied.custom_id, _callable=self._denied, autorised_key=autorised_key, autorised_roles=autorised_roles)
