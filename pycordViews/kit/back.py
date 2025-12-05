@@ -29,8 +29,9 @@ class Back:
         self.back_function: Union[Callable] = None
 
         self.__view = EasyModifiedViews(timeout=timeout, disabled_on_timeout=disabled_on_timeout)
-        self.__view.add_items(Button(label='⏪ Back', row=row, custom_id='back', style=ButtonStyle.gray))
-        self.__view.set_callable('back', _callable=self._back, autorised_roles=autorised_roles, autorised_key=autorised_key)
+        b = Button(label='⏪ Back', row=row, style=ButtonStyle.gray)
+        self.__view.add_items(b)
+        self.__view.set_callable(b.custom_id, _callable=self._back, autorised_roles=autorised_roles, autorised_key=autorised_key)
 
     def set_parameters(self, *args, function: Callable, **kwargs):
         """
