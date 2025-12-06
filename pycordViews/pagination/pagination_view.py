@@ -74,7 +74,7 @@ class Pagination:
         page_count = len(self.__pages)
 
         if page_count <= 1:
-            await self.__view.shutdown()
+            await self.__view.disable_items('back+', 'back', 'forward', 'forward+')
             await interaction.response.defer(invisible=True)
             return
 

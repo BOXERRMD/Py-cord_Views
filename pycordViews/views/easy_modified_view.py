@@ -2,16 +2,17 @@ from __future__ import annotations
 from discord import Interaction, ApplicationContext, Message, Member, Role
 from discord.abc import GuildChannel
 from discord.ui import View, Item
-from typing import Union, Callable, TYPE_CHECKING, Optional, Any
-from asyncio import iscoroutinefunction, create_task
+from typing import Union, Callable, TYPE_CHECKING, Optional, Any, TypeVar
+from asyncio import iscoroutinefunction
 
 from .errors import CustomIDNotFound, CoroutineError
 
 if TYPE_CHECKING:
     from ..menu.selectMenu import SelectMenu
     from ..pagination.pagination_view import Pagination
-    from ..kit import Poll, Confirm
+    from ..kit import Poll, Confirm, Back
 
+all_class = TypeVar("all_class", "EasyModifiedViews", "Confirm", "Pagination", "Poll", "SelectMenu", Item, "Back")
 
 class EasyModifiedViews(View):
     """
@@ -24,14 +25,14 @@ class EasyModifiedViews(View):
         """
         Init a Class view for Discord UI
         :param timeout: The time before ui disable
-        :param disabled_on_timeout: disable view if timeout is reached
+        :param disabled_on_timeout:  view if timeout is reached
         :param call_on_timeout: asynchronous function to call after view timed-out
         """
         super().__init__(*items, timeout=timeout)
         self.__timeout: Optional[float] = timeout
         self.__disabled_on_timeout: bool = disabled_on_timeout
         self.__callback: dict[str, dict[str, Union[Callable[[Interaction], None], Item, Any]]] = {}
-        self.__ctx: Union[Message, Interaction] = None
+        self.__ctx: Optional[Union[Message, Interaction]] = None
         self.__call_on_timeout: Callable = call_on_timeout
 
     def __check_custom_id(self, custom_id: str) -> None:
@@ -56,7 +57,7 @@ class EasyModifiedViews(View):
         self.__ctx = await target.send(*args, **kwargs)
 
     def add_items(self,
-                   *items: Union[EasyModifiedViews, Confirm, Pagination, Poll, SelectMenu, Item]) -> EasyModifiedViews:
+                   *items: all_class) -> EasyModifiedViews:
         """
         Add all items in the View.
         """
@@ -66,14 +67,17 @@ class EasyModifiedViews(View):
             if ui is None: # si l'ui n'est pas setup
                 continue
 
-            if type(ui).__name__ in ('SelectMenu', 'Pagination', 'Confirm', 'Poll', 'EasyModifiedViews'):
-                for item in ui.get_view.items:
-                    self.add_items(item)
-                    self.set_callable(item.custom_id, _callable=ui.get_view.get_callable(item.custom_id), data=ui.get_view.get_callable_data(item.custom_id))
-
-            else:
+            if isinstance(ui, Item):
                 self.__callback[ui.custom_id] = {'ui': ui, 'func': None, 'data': {}, 'autorised_roles': None, 'autorised_key': None}
                 self.add_item(ui)
+            else:
+                for item in ui.get_view.items:
+                    self.add_items(item)
+                    self.set_callable(item.custom_id,
+                                      _callable=ui.get_view.get_callable(item.custom_id),
+                                      data=ui.get_view.get_callable_data(item.custom_id),
+                                      autorised_roles=ui.get_view.get_autorised_roles(item.custom_id),
+                                      autorised_key=ui.get_view.get_autorised_key(item.custom_id))
 
         return self
 
@@ -339,14 +343,34 @@ class EasyModifiedViews(View):
         self.__check_custom_id(custom_id)
         return self.__callback[custom_id]['data']
 
+    def get_autorised_roles(self, custom_id: str) -> Optional[list[Union[int, Role]]]:
+        """
+        Get autorised roles for an ui in the view
+        :param custom_id: UI ID
+        """
+        self.__check_custom_id(custom_id)
+        return self.__callback[custom_id]['autorised_roles']
+
+    def get_autorised_key(self, custom_id: str) -> Optional[Callable]:
+        """
+        Get autorised key function for an ui in the view
+        :param custom_id: UI ID
+        """
+        self.__check_custom_id(custom_id)
+        return self.__callback[custom_id]['autorised_key']
+
     def copy(self) -> EasyModifiedViews:
         """
         Return an exact copy of the view. All mutable object in the view is a new object
         """
         e = EasyModifiedViews(timeout=self.__timeout, disabled_on_timeout=self.__disabled_on_timeout).add_items(*self.items)
         for i in self.items:
-            e.set_callable(i.custom_id, _callable=self.get_callable(i.custom_id), data=self.get_callable_data(i.custom_id))
-
+            item_id = i.custom_id
+            e.set_callable(item_id,
+                           _callable=self.get_callable(item_id),
+                           data=self.get_callable_data(item_id),
+                           autorised_roles=self.get_autorised_roles(item_id),
+                           autorised_key=self.get_autorised_key(item_id))
         return e
 
     def __str__(self):
@@ -363,14 +387,15 @@ class EasyModifiedViews(View):
         """
         return self
 
-    def __add__(self, _view: Union[EasyModifiedViews, Confirm, Pagination, Poll, SelectMenu, Item]) -> EasyModifiedViews:
+    def __add__(self, _view: all_class) -> EasyModifiedViews:
         """
         Add all items to _view from the current EasyModifiedViews instance
         """
-        self.add_items(_view)
-        return self
+        c = self.copy()
+        c.add_items(_view)
+        return c
 
-    def __iadd__(self, _view) -> EasyModifiedViews:
+    def __iadd__(self, _view: all_class) -> EasyModifiedViews:
         """
         Add all items to _view from the current EasyModifiedViews instance
         """
