@@ -23,3 +23,12 @@ class Page:
         """
         return self.__view
 
+    @get_page_view.setter
+    def get_page_view(self, new_view: EasyModifiedViews):
+        """
+        Set a new view for the page
+        """
+        if not isinstance(new_view, EasyModifiedViews):
+            raise TypeError(f"New page vien must be EasyModifiedViews class instance, not {type(new_view)}")
+
+        self.__view = new_view
