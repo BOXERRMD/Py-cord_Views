@@ -1,5 +1,4 @@
-from __future__ import annotations
-from typing import Optional, Callable
+from typing import Optional
 from discord import File, Embed
 from immutableType import callable_, NoneType
 from ..views import EasyModifiedViews
@@ -7,7 +6,12 @@ from ..views import EasyModifiedViews
 class Page:
 
     @callable_(is_class=True, kwargs_types={'view': [NoneType, EasyModifiedViews], 'content': [NoneType, str], 'embed': [NoneType, Embed], 'embeds': [list], 'file': [NoneType, File], 'files': [list]})
-    def __init__(self, view: EasyModifiedViews, content: Optional[str] = None, embed: Optional[Embed] = None, embeds: list[Embed] = [], file: Optional[File] = None,  files: Optional[list[File]] = []):
+    def __init__(self, view: Optional[EasyModifiedViews] = None,
+                 content: Optional[str] = None,
+                 embed: Optional[Embed] = None,
+                 embeds: list[Embed] = [],
+                 file: Optional[File] = None,
+                 files: Optional[list[File]] = []):
         """
         Init Page instance from Pagination class
         """

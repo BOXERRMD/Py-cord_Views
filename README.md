@@ -14,6 +14,8 @@ The paginator instance is used to create a view acting as a “book”, with pag
 > ```
 > > **Method** `add_page(*args, **kwargs) -> Pagination` : add a new page with send message function parameters _(content, embed, embeds, files...)_
 >
+> > **Method** `set_page(page_number: int, new_page: Page) -> Pagination` : Change an existing page in the pagination
+> 
 > > **Method** `delete_pages(*page_numbers: Union[str, int]) -> Pagination` : Deletes pages in the order in which they were added _(start to 0)_
 > 
 > > **Method** `send(target: Union[Member, TextChannel]) -> Any` : Send the pagination in dm member or channels

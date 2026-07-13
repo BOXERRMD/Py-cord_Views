@@ -3,7 +3,7 @@ from discord import Interaction, ApplicationContext, Message, Member, Role
 from discord.abc import GuildChannel
 from discord.ui import View, Item
 from typing import Union, Callable, TYPE_CHECKING, Optional, Any, TypeVar
-from asyncio import iscoroutinefunction
+from inspect import iscoroutinefunction
 
 from .errors import CustomIDNotFound, CoroutineError
 
@@ -21,7 +21,10 @@ class EasyModifiedViews(View):
     Allows you to easily modify and replace an ui.
     """
 
-    def __init__(self, timeout: Optional[float] = None, disabled_on_timeout: bool = False, call_on_timeout: Optional[Callable] = None, *items: Item):
+    def __init__(self, timeout: Optional[float] = None,
+                 disabled_on_timeout: bool = False,
+                 call_on_timeout: Optional[Callable] = None,
+                 *items: Item):
         """
         Init a Class view for Discord UI
         :param timeout: The time before ui disable
@@ -33,7 +36,7 @@ class EasyModifiedViews(View):
         self.__disabled_on_timeout: bool = disabled_on_timeout
         self.__callback: dict[str, dict[str, Union[Callable[[Interaction], None], Item, Any]]] = {}
         self.__ctx: Optional[Union[Message, Interaction]] = None
-        self.__call_on_timeout: Callable = call_on_timeout
+        self.__call_on_timeout: Optional[Callable] = call_on_timeout
 
     def __check_custom_id(self, custom_id: str) -> None:
         """
