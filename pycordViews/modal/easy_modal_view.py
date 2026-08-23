@@ -1,8 +1,7 @@
 from discord.ui import Modal, InputText
 from discord import InputTextStyle, Interaction
 from typing import Optional, Callable, Union
-from functools import partial
-from asyncio import iscoroutinefunction
+from inspect import iscoroutinefunction
 
 from .errors import CoroutineError, CustomIDNotFound
 
@@ -42,7 +41,7 @@ class EasyModal(Modal):
         x = InputText(label=label, style=style, custom_id=custom_id, placeholder=placeholder, min_length=min_length, max_length=max_length, required=required, row=row, value=value)
         self.__callback[x.custom_id] = None
         self.add_item(x)
-        return partial(self.set_inputText_callable, x.custom_id)
+        return self.set_inputText_callable(x.custom_id)
 
     def set_inputText_callable(self, inputText_id: str, _callable: Callable) -> "EasyModal":
         """
