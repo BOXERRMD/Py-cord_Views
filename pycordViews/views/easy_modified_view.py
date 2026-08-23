@@ -1,7 +1,7 @@
 from __future__ import annotations
 from discord import Interaction, ApplicationContext, Message, Member, Role
 from discord.abc import GuildChannel
-from discord.ui import View, Item
+from discord.ui import BaseView, Item
 from typing import Union, Callable, TYPE_CHECKING, Optional, Any, TypeVar
 from inspect import iscoroutinefunction
 
@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
 all_class = TypeVar("all_class", "EasyModifiedViews", "Confirm", "Pagination", "Poll", "SelectMenu", Item, "Back")
 
-class EasyModifiedViews(View):
+class EasyModifiedViews(BaseView):
     """
     Class
     -------------
