@@ -390,6 +390,13 @@ class EasyModifiedViews(View):
         """
         return self
 
+    @property
+    def get_ctx(self) -> Optional[Union[Message, Interaction]]:
+        """
+        Get the current context. Don't use in your code
+        """
+        return self.__ctx
+
     def __add__(self, _view: all_class) -> EasyModifiedViews:
         """
         Add all items to _view from the current EasyModifiedViews instance

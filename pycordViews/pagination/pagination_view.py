@@ -136,6 +136,27 @@ class Pagination:
         first_page = self.__pages[0]
         return await self.__view.respond(ctx=ctx, content=first_page.content, embeds=first_page.embeds, files=first_page.files, view=self.__view.copy() + first_page.get_page_view)
 
+    async def refresh(self) -> Any:
+        """
+        Refresh the current page
+        :param interaction: The interaction to refresh
+        """
+
+        if self.get_view.get_ctx is None:
+            raise ValueError("No context found for the view. Please use respond() or send() before calling refresh().")
+
+        c = self.__pages[self.__current_page]
+
+        await self.get_view.get_ctx.edit(
+
+            content=c.content,
+            embeds=c.embeds,
+            files=c.files,
+
+            view=self.__view.copy() + self.__pages[self.__current_page].get_page_view,
+
+        )
+
     def get_page(self, page_number: int) -> Page:
         """
         Get the page
