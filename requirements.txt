@@ -1,0 +1,4 @@
+py-cord==2.7.0
+immutable-python-type
+build
+twine
