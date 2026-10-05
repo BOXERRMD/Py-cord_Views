@@ -4,7 +4,7 @@ from discord.ui import Button
 from .errors import PageNumberNotFound
 from .page import Page
 
-from typing import Union, Any, Optional
+from typing import Union, Any, Optional, Callable
 
 
 class Pagination:
@@ -18,7 +18,7 @@ class Pagination:
                  disabled_on_timeout: bool = False,
                  default_row: int = 0,
                  autorised_roles: Optional[list[Union[Role, int]]] = None,
-                 autorised_key: Optional[callable] = None):
+                 autorised_key: Optional[Callable] = None):
         """
         Initialisation for pagination
         :param timeout: The time before disable items on the view
@@ -65,6 +65,17 @@ class Pagination:
 
             del self.__pages[page_number]
         self.__view.get_ui('counter').label = f"{self.__current_page+1}/{len(self.__pages)}"
+        return self
+
+    async def set_page(self, page_number: Union[str, int], new_page: Page) -> "Pagination":
+        """
+        Set a new page on a current page.
+        """
+        nbr_pages = len(self.__pages) - 1
+        if page_number < 0 or nbr_pages < page_number:
+            raise PageNumberNotFound(page_number)
+
+        self.__pages[page_number] = new_page
         return self
 
     async def __turn_page(self, button, interaction: Interaction, data):
