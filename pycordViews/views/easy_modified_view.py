@@ -36,7 +36,9 @@ class EasyModifiedViews(View):
         self.__disabled_on_timeout: bool = disabled_on_timeout
         self.__callback: dict[str, dict[str, Union[Callable[[Interaction], None], Item, Any]]] = {}
         self.__ctx: Optional[Union[Message, Interaction]] = None
-        self.__call_on_timeout: Optional[Callable] = call_on_timeout
+        self.__call_on_timeout: Optional[Callable] = None
+        if call_on_timeout is not None:
+            self.call_on_timeout(call_on_timeout)
 
     def __check_custom_id(self, custom_id: str) -> None:
         """
@@ -248,7 +250,7 @@ class EasyModifiedViews(View):
         Disable -> Enable
         """
 
-        for key, in self.__callback.keys():
+        for key in self.__callback.keys():
             self.__callback[key]['ui'].disabled = not self.__callback[key]['ui'].disabled
 
         await self._update()
@@ -301,10 +303,23 @@ class EasyModifiedViews(View):
         """
         Called if timeout view is finished
         """
-        if self.__disabled_on_timeout:
-            await self.shutdown()
-        if self.__call_on_timeout is not None:
-            await self.__call_on_timeout(self.__ctx)
+        try:
+            if self.__disabled_on_timeout:
+                await self.shutdown()
+            if self.__call_on_timeout is not None:
+                await self.__call_on_timeout(self.__ctx)
+        finally:
+            self.__cleanup()
+
+    def __cleanup(self) -> None:
+        """Release dispatch-store, callback, item and message references."""
+        self.clear_items()
+        self.__callback.clear()
+        self.__call_on_timeout = None
+        self.__ctx = None
+        self.message = None
+        self.parent = None
+        self.stop()
 
     def call_on_timeout(self, _callable: Callable) -> None:
         """

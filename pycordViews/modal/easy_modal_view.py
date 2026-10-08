@@ -1,3 +1,5 @@
+import asyncio
+
 from discord.ui import Modal, InputText
 from discord import InputTextStyle, Interaction
 from typing import Optional, Callable, Union
@@ -24,6 +26,11 @@ class EasyModal(Modal):
             raise CoroutineError(global_callable)
 
         self.__global_callable: Optional[Callable] = global_callable
+
+    def _start_listening_from_store(self, store) -> None:
+        if self._stopped.done():
+            self._stopped = asyncio.get_running_loop().create_future()
+        super()._start_listening_from_store(store)
 
     def add_input_text(self, label: str,
                        style: InputTextStyle = InputTextStyle.short,
@@ -80,13 +87,24 @@ class EasyModal(Modal):
         Call when the user submit the modal.
         All callable function set to the user get the 'interaction' parameter.
         """
-
         if self.__global_callable is not None:
             await self.__global_callable(self, interaction)
 
         for inputTextID, _callable in self.__callback.items():
             if _callable is not None:
-                await _callable(self.get_input_text(inputTextID),interaction)
+                await _callable(self.get_input_text(inputTextID), interaction)
+
+    async def on_timeout(self) -> None:
+        self.__detach_from_store()
+
+    def __detach_from_store(self) -> None:
+        if self._cancel_callback is not None:
+            store = getattr(self._cancel_callback.func, "__self__", None)
+            if store is not None and hasattr(store, "_modals"):
+                for key, modal in tuple(store._modals.items()):
+                    if modal is self:
+                        store._modals.pop(key, None)
+            self._cancel_callback = None
 
 
 

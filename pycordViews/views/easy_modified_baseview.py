@@ -54,6 +54,24 @@ class EasyModifiedBaseView(BaseView):
                 }
                 self.add_item(ui)
 
+    async def on_timeout(self) -> None:
+        try:
+            if self.__disabled_on_timeout:
+                self.disable_all_items()
+            if self.__call_on_timeout is not None:
+                await self.__call_on_timeout(self.__ctx)
+        finally:
+            self.__cleanup()
+
+    def __cleanup(self) -> None:
+        self.clear_items()
+        self.__callback.clear()
+        self.__call_on_timeout = None
+        self.__ctx = None
+        self.message = None
+        self.parent = None
+        self.stop()
+
     def set_callable(self, *custom_ids: str,
                      _callable: Callable,
                      data: Optional[dict[str, Any]] = None,
