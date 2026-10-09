@@ -3,18 +3,38 @@
   <component name="AutoImportSettings">
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
+  <component name="BackgroundAgentGlobalSettings">
+    <option name="selectedModelId" value="auto" />
+  </component>
   <component name="ChangeListManager">
-    <list default="true" id="88fa8df9-7cb6-45b5-89e7-f6133c57728d" name="Changes" comment="Update">
+    <list default="true" id="88fa8df9-7cb6-45b5-89e7-f6133c57728d" name="Changes" comment="Allow functions un pagination pages to built it">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pycordViews/modal/easy_modal_view.py" beforeDir="false" afterPath="$PROJECT_DIR$/pycordViews/modal/easy_modal_view.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pycordViews/pagination/pagination_view.py" beforeDir="false" afterPath="$PROJECT_DIR$/pycordViews/pagination/pagination_view.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pycordViews/views/easy_modified_view.py" beforeDir="false" afterPath="$PROJECT_DIR$/pycordViews/views/easy_modified_view.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/setup.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="CopilotPersistence">
+    <persistenceIdMap>
+      <entry key="_D:/PycharmProjects/Py-cord_Views" value="3KQd3rBbZpu3nR5uSE19J732x9w" />
+    </persistenceIdMap>
+  </component>
+  <component name="DBNavigator.Project.Workspace.Settings">
+    <assistant-settings>
+      <credential-settings>
+        <credentials />
+      </credential-settings>
+      <profile-settings>
+        <profiles />
+      </profile-settings>
+      <mcp-server-settings>
+        <workspace-integration value="false" />
+        <mcp-servers />
+        <mcp-tool-approvals />
+      </mcp-server-settings>
+    </assistant-settings>
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -40,7 +60,7 @@
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
     &quot;url&quot;: &quot;https://github.com/BOXERRMD/Py-cord_Views.git&quot;,
-    &quot;accountId&quot;: &quot;65a63712-a311-46e8-97f1-20f193dc5250&quot;
+    &quot;accountId&quot;: &quot;f2b078b9-fc9b-49f2-a367-9388233f60a8&quot;
   }
 }</component>
   <component name="ProjectColorInfo">{
@@ -49,6 +69,21 @@
   <component name="ProjectId" id="2risYYFPpLpUZAl3wMA9aKWDh8C" />
   <component name="ProjectLevelVcsManager">
     <ConfirmationsSetting value="1" id="Add" />
+  </component>
+  <component name="ProjectSessionTemplates">
+    <option name="panelTemplate">
+      <template>
+        <option name="modeId" value="Agent" />
+        <option name="model">
+          <model>
+            <option name="modelType" value="builtin_id" />
+            <option name="modelValue" value="auto" />
+          </model>
+        </option>
+        <option name="targetType" value="BACKGROUND" />
+        <option name="worktreeMode" value="WORKSPACE" />
+      </template>
+    </option>
   </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -63,9 +98,11 @@
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
     &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
+    &quot;copilot.chat.legacySessionMetadata.migrated&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;dev&quot;,
     &quot;last_opened_file_path&quot;: &quot;/home/chronos/Documents/LoveGameEngine/test&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;python.packages.toolwindow.project.migrated.to.right.top.v2&quot;: &quot;true&quot;,
     &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
   }
 }</component>
@@ -110,7 +147,7 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-python-sdk-50341a9f1f9c-c2ffad84badb-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-261.26222.68" />
+        <option value="bundled-python-sdk-73a66231627c-5bd6d13a2a75-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-262.10968.92" />
       </set>
     </attachedChunks>
   </component>
@@ -139,7 +176,31 @@
       <option name="project" value="LOCAL" />
       <updated>1783978014407</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="fix bugs">
+      <option name="closed" value="true" />
+      <created>1791222282275</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1791222282275</updated>
+    </task>
+    <task id="LOCAL-00004" summary="Copilot : fix memory leaks">
+      <option name="closed" value="true" />
+      <created>1791494368555</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1791494368555</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Allow functions un pagination pages to built it">
+      <option name="closed" value="true" />
+      <created>1791554189426</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1791554189426</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -159,7 +220,10 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="1.3.8.1&#10;Add page modification in Pagination class" />
     <MESSAGE value="Update" />
-    <option name="LAST_COMMIT_MESSAGE" value="Update" />
+    <MESSAGE value="fix bugs" />
+    <MESSAGE value="Copilot : fix memory leaks" />
+    <MESSAGE value="Allow functions un pagination pages to built it" />
+    <option name="LAST_COMMIT_MESSAGE" value="Allow functions un pagination pages to built it" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
