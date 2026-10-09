@@ -137,7 +137,9 @@ class Pagination:
         :param ctx: ApplicationContext to respond
         """
         first_page = self.__pages[0]
-        return await self.__view.respond(ctx=ctx, content=first_page.content, embeds=first_page.embeds, files=first_page.files, view=self.__view.copy() + first_page.get_page_view)
+        built_first_page = first_page.build_page()
+        built_first_page['view'] = self.__view.copy() + first_page.get_page_view
+        return await self.__view.respond(ctx=ctx, **built_first_page)
 
     async def refresh(self) -> Any:
         """
