@@ -9,10 +9,9 @@ EACH BOT CAN ACCESS INFORMATION FROM OTHER BOTS CONTAINED IN THE SAME PROCESS.
 The paginator instance is used to create a view acting as a “book”, with pages that can be turned using buttons.
 ## `Paginator`
 > ```python
-> Paginator(timeout: Union[float, None] = None, disabled_on_timeout: bool = False, autorised_roles: Optional[list[Union[Role, int]]] = None,
-                 autorised_key: Optional[callable] = None)`
+> Paginator(timeout: Union[float, None] = None, disabled_on_timeout: bool = False, autorised_roles: Optional[list[Union[Role, int]]] = None,autorised_key: Optional[callable] = None)`
 > ```
-> > **Method** `add_page(*args, **kwargs) -> Pagination` : add a new page with send message function parameters _(content, embed, embeds, files...)_
+> > **Method** `add_page(*args, **kwargs) -> Pagination` : add a new page with send message function parameters _(content, embed, embeds, files...)_. All parameters except `view` accept function (not coroutine) to build the page dynamically.
 >
 > > **Method** `set_page(page_number: int, new_page: Page) -> Pagination` : Change an existing page in the pagination
 > 
@@ -21,6 +20,8 @@ The paginator instance is used to create a view acting as a “book”, with pag
 > > **Method** `send(target: Union[Member, TextChannel]) -> Any` : Send the pagination in dm member or channels
 > 
 > > **Method** `respond(ctx: Union[ApplicationContext, Interaction]) -> Any` : Respond at slash command call
+> 
+> > **Method** `refresh() -> None` : Refresh the current showed page dynamically if th pagination was sent before.
 > 
 > > **@property** `get_view -> EasyModifiedViews` : Return the pagination view. Can be used in `view` parameter to setup a view
 > 
