@@ -1,24 +1,73 @@
-from typing import Optional
 from discord import File, Embed
 from immutableType import callable_, NoneType
 from ..views import EasyModifiedViews
+from typing import Optional, Callable, Union
+from types import FunctionType
 
 class Page:
 
-    @callable_(is_class=True, kwargs_types={'view': [NoneType, EasyModifiedViews], 'content': [NoneType, str], 'embed': [NoneType, Embed], 'embeds': [list], 'file': [NoneType, File], 'files': [list]})
+    @callable_(is_class=True, kwargs_types={
+        'view': [NoneType, EasyModifiedViews],
+        'content': [NoneType, str, FunctionType],
+        'embed': [NoneType, Embed, FunctionType],
+        'embeds': [NoneType, list, FunctionType],
+        'file': [NoneType, File, FunctionType],
+        'files': [NoneType, list, FunctionType]})
+
     def __init__(self, view: Optional[EasyModifiedViews] = None,
-                 content: Optional[str] = None,
-                 embed: Optional[Embed] = None,
-                 embeds: list[Embed] = [],
-                 file: Optional[File] = None,
-                 files: Optional[list[File]] = []):
+                 content: Optional[Union[str, Callable[[], str]]] = None,
+                 embed: Optional[Union[Embed, Callable[[], Embed]]] = None,
+                 embeds: Optional[Union[list[Embed], Callable[[], list[Embed]]]] = None,
+                 file: Optional[Union[File, Callable[[], File]]] = None,
+                 files: Optional[Union[list[File], Callable[[], list[File]]]] = None):
         """
         Init Page instance from Pagination class
         """
         self.__view: EasyModifiedViews = view if view is not None else EasyModifiedViews()
-        self.content: Optional[str] = content
-        self.embeds: list[Embed] = embeds if embed is None else embeds + [embed]
-        self.files: list[File] = files if file is None else files + [file]
+        self.content: Optional[Union[str, Callable[[], str]]] = content
+        self.embeds: tuple[Optional[Union[Embed, Callable[[], Embed]]],
+                    Optional[Union[list[Embed], Callable[[], list[Embed]]]]] \
+                        = (embed, embeds)
+        self.files: tuple[Optional[Union[File, Callable[[], File]]],
+                    Optional[Union[list[File], Callable[[], list[File]]]]] \
+                        = (file, files)
+
+    @staticmethod
+    def __make_embeds(embed: Optional[Union[Embed, Callable[[], Embed]]],
+                     embeds: Optional[Union[list[Embed], Callable[[], list[Embed]]]]) -> list[Embed]:
+        """
+        Make the embed(s) for the page
+        """
+        final_embeds: list[Embed] = []
+        if embed is not None:
+            final_embeds.append(embed() if callable(embed) else embed)
+        if embeds is not None:
+            final_embeds.extend(embeds() if callable(embeds) else embeds)
+        return final_embeds
+
+    @staticmethod
+    def __make_files(file: Optional[Union[File, Callable[[], File]]],
+                    files: Optional[Union[list[File], Callable[[], list[File]]]]) -> list[File]:
+        """
+        Make the file(s) for the page
+        """
+        final_files: list[File] = []
+        if file is not None:
+            final_files.append(file() if callable(file) else file)
+        if files is not None:
+            final_files.extend(files() if callable(files) else files)
+        return final_files
+
+    def build_page(self) -> dict:
+        """
+        Build the page to send it
+        """
+        return {
+            "content": self.content() if callable(self.content) else self.content,
+            "embeds": self.__make_embeds(*self.embeds),
+            "files": self.__make_files(*self.files),
+            "view": self.__view
+        }
 
     @property
     def get_page_view(self) -> EasyModifiedViews:

@@ -39,7 +39,13 @@ class Pagination:
         self.__pages: list[Page] = []
         self.__current_page: int = 0
 
-    def add_page(self, content: Optional[str] = None, embed: Optional[Embed] = None, embeds: list[Embed] = [], file: Optional[File] = None,  files: Optional[list[File]] = [], view: Optional[EasyModifiedViews] = None) -> "Pagination":
+    def add_page(self,
+                 content: Optional[Union[str, Callable[[], str]]] = None,
+                 embed: Optional[Union[Embed, Callable[[], Embed]]] = None,
+                 embeds: Optional[Union[list[Embed], Callable[[], list[Embed]]]] = None,
+                 file: Optional[Union[File, Callable[[], File]]] = None,
+                 files: Optional[Union[list[File], Callable[[], list[File]]]] = None,
+                 view: Optional[EasyModifiedViews] = None) -> "Pagination":
         """
         Adds a page (in a list) as if this function directly sent the message
         Pages are just modified and not reset ! Don't forget to disable embeds or content if the page don't need this.
@@ -105,16 +111,11 @@ class Pagination:
 
         self.__view.get_ui('counter').label = f"{self.__current_page + 1}/{len(self.__pages)}"
 
-        c = self.__pages[self.__current_page]
+        c = self.__pages[self.__current_page].build_page()
+        c["view"] = self.__view.copy() + self.__pages[self.__current_page].get_page_view
 
         await interaction.message.edit(
-
-            content=c.content,
-            embeds=c.embeds,
-            files=c.files,
-
-            view=self.__view.copy() + self.__pages[self.__current_page].get_page_view,
-
+            **c
         )
 
         # Acknowledge the interaction
@@ -126,7 +127,9 @@ class Pagination:
         :param target: The member or channel to send the pagination
         """
         first_page = self.__pages[0]
-        return await self.__view.send(target=target, content=first_page.content, embeds=first_page.embeds, files=first_page.files, view=self.__view.copy() + first_page.get_page_view)
+        built_first_page = first_page.build_page()
+        built_first_page['view'] = self.__view.copy() + first_page.get_page_view
+        return await self.__view.send(target=target, **built_first_page)
 
     async def respond(self, ctx: Union[ApplicationContext, Interaction]) -> Any:
         """
@@ -145,16 +148,11 @@ class Pagination:
         if self.get_view.get_ctx is None:
             raise ValueError("No context found for the view. Please use respond() or send() before calling refresh().")
 
-        c = self.__pages[self.__current_page]
+        c = self.__pages[self.__current_page].build_page()
+        c["view"] = self.__view.copy() + self.__pages[self.__current_page].get_page_view
 
         await self.get_view.get_ctx.edit(
-
-            content=c.content,
-            embeds=c.embeds,
-            files=c.files,
-
-            view=self.__view.copy() + self.__pages[self.__current_page].get_page_view,
-
+            **c
         )
 
     def get_page(self, page_number: int) -> Page:
