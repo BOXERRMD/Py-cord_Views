@@ -45,14 +45,29 @@ class Pagination:
                  embeds: Optional[Union[list[Embed], Callable[[], list[Embed]]]] = None,
                  file: Optional[Union[File, Callable[[], File]]] = None,
                  files: Optional[Union[list[File], Callable[[], list[File]]]] = None,
-                 view: Optional[EasyModifiedViews] = None) -> "Pagination":
+                 view: Optional[EasyModifiedViews] = None,
+                 args_content: Optional[tuple] = None,
+                 args_embeds: Optional[tuple] = None,
+                 args_files: Optional[tuple] = None) -> "Pagination":
         """
         Adds a page (in a list) as if this function directly sent the message
         Pages are just modified and not reset ! Don't forget to disable embeds or content if the page don't need this.
 
         add_page(content="my message", embeds=[embed1, embed2], ...)
         """
-        self.__pages.append(Page(content=content, embed=embed, embeds=embeds, file=file, files=files, view=view))
+        self.__pages.append(
+            Page(
+                content=content,
+                embed=embed,
+                embeds=embeds,
+                file=file,
+                files=files,
+                view=view,
+                args_content=args_content,
+                args_embeds=args_embeds,
+                args_files=args_files
+            )
+        )
         self.__view.get_ui('counter').label = f"{self.__current_page+1}/{len(self.__pages)}"
         return self
 

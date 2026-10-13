@@ -12,14 +12,21 @@ class Page:
         'embed': [NoneType, Embed, FunctionType],
         'embeds': [NoneType, list, FunctionType],
         'file': [NoneType, File, FunctionType],
-        'files': [NoneType, list, FunctionType]})
+        'files': [NoneType, list, FunctionType],
+        'args_content': [NoneType, tuple],
+        'args_embeds': [NoneType, tuple],
+        'args_files': [NoneType, tuple]
+    })
 
     def __init__(self, view: Optional[EasyModifiedViews] = None,
                  content: Optional[Union[str, Callable[[], str]]] = None,
                  embed: Optional[Union[Embed, Callable[[], Embed]]] = None,
                  embeds: Optional[Union[list[Embed], Callable[[], list[Embed]]]] = None,
                  file: Optional[Union[File, Callable[[], File]]] = None,
-                 files: Optional[Union[list[File], Callable[[], list[File]]]] = None):
+                 files: Optional[Union[list[File], Callable[[], list[File]]]] = None,
+                 args_content: Optional[tuple] = None,
+                 args_embeds: Optional[tuple] = None,
+                 args_files: Optional[tuple] = None):
         """
         Init Page instance from Pagination class
         """
@@ -31,31 +38,34 @@ class Page:
         self.files: tuple[Optional[Union[File, Callable[[], File]]],
                     Optional[Union[list[File], Callable[[], list[File]]]]] \
                         = (file, files)
+        self.args_content: tuple = args_content or ()
+        self.args_embeds: tuple = args_embeds or ()
+        self.args_files: tuple = args_files or ()
 
-    @staticmethod
-    def __make_embeds(embed: Optional[Union[Embed, Callable[[], Embed]]],
-                     embeds: Optional[Union[list[Embed], Callable[[], list[Embed]]]]) -> list[Embed]:
+    def __make_embeds(self,
+                      embed: Optional[Union[Embed, Callable[[], Embed]]],
+                      embeds: Optional[Union[list[Embed], Callable[[], list[Embed]]]]) -> list[Embed]:
         """
         Make the embed(s) for the page
         """
         final_embeds: list[Embed] = []
         if embed is not None:
-            final_embeds.append(embed() if callable(embed) else embed)
+            final_embeds.append(embed(*self.args_embeds) if callable(embed) else embed)
         if embeds is not None:
-            final_embeds.extend(embeds() if callable(embeds) else embeds)
+            final_embeds.extend(embeds(*self.args_embeds) if callable(embeds) else embeds)
         return final_embeds
 
-    @staticmethod
-    def __make_files(file: Optional[Union[File, Callable[[], File]]],
-                    files: Optional[Union[list[File], Callable[[], list[File]]]]) -> list[File]:
+    def __make_files(self,
+                     file: Optional[Union[File, Callable[[], File]]],
+                     files: Optional[Union[list[File], Callable[[], list[File]]]]) -> list[File]:
         """
         Make the file(s) for the page
         """
         final_files: list[File] = []
         if file is not None:
-            final_files.append(file() if callable(file) else file)
+            final_files.append(file(*self.args_files) if callable(file) else file)
         if files is not None:
-            final_files.extend(files() if callable(files) else files)
+            final_files.extend(files(*self.args_files) if callable(files) else files)
         return final_files
 
     def build_page(self) -> dict:
@@ -63,7 +73,7 @@ class Page:
         Build the page to send it
         """
         return {
-            "content": self.content() if callable(self.content) else self.content,
+            "content": self.content(*self.args_content) if callable(self.content) else self.content,
             "embeds": self.__make_embeds(*self.embeds),
             "files": self.__make_files(*self.files),
             "view": self.__view
