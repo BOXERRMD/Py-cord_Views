@@ -2,7 +2,7 @@ from ..views.easy_modified_view import EasyModifiedViews
 from discord import ButtonStyle, Interaction, TextChannel, Member, ApplicationContext, File, Embed, Role
 from discord.ui import Button
 from .errors import PageNumberNotFound
-from .page import Page
+from .page import Page, annot_type_content, annot_type_embed, annot_type_embeds, annot_type_file, annot_type_files
 
 from typing import Union, Any, Optional, Callable
 
@@ -40,11 +40,11 @@ class Pagination:
         self.__current_page: int = 0
 
     def add_page(self,
-                 content: Optional[Union[str, Callable[[], str]]] = None,
-                 embed: Optional[Union[Embed, Callable[[], Embed]]] = None,
-                 embeds: Optional[Union[list[Embed], Callable[[], list[Embed]]]] = None,
-                 file: Optional[Union[File, Callable[[], File]]] = None,
-                 files: Optional[Union[list[File], Callable[[], list[File]]]] = None,
+                 content: annot_type_content = None,
+                 embed: annot_type_embed = None,
+                 embeds: annot_type_embeds = None,
+                 file: annot_type_file = None,
+                 files: annot_type_files = None,
                  view: Optional[EasyModifiedViews] = None,
                  args_content: Optional[tuple] = None,
                  args_embeds: Optional[tuple] = None,
@@ -52,6 +52,7 @@ class Pagination:
         """
         Adds a page (in a list) as if this function directly sent the message
         Pages are just modified and not reset ! Don't forget to disable embeds or content if the page don't need this.
+        content, embed, embeds, file, files can be a function or a async function that return the content, embed, embeds, file or files.
 
         add_page(content="my message", embeds=[embed1, embed2], ...)
         """
@@ -126,7 +127,7 @@ class Pagination:
 
         self.__view.get_ui('counter').label = f"{self.__current_page + 1}/{len(self.__pages)}"
 
-        c = self.__pages[self.__current_page].build_page()
+        c = await self.__pages[self.__current_page].build_page()
         c["view"] = self.__view.copy() + self.__pages[self.__current_page].get_page_view
 
         await interaction.message.edit(
@@ -142,7 +143,7 @@ class Pagination:
         :param target: The member or channel to send the pagination
         """
         first_page = self.__pages[0]
-        built_first_page = first_page.build_page()
+        built_first_page = await first_page.build_page()
         built_first_page['view'] = self.__view.copy() + first_page.get_page_view
         return await self.__view.send(target=target, **built_first_page)
 
@@ -152,7 +153,7 @@ class Pagination:
         :param ctx: ApplicationContext to respond
         """
         first_page = self.__pages[0]
-        built_first_page = first_page.build_page()
+        built_first_page = await first_page.build_page()
         built_first_page['view'] = self.__view.copy() + first_page.get_page_view
         return await self.__view.respond(ctx=ctx, **built_first_page)
 
@@ -165,7 +166,7 @@ class Pagination:
         if self.get_view.get_ctx is None:
             raise ValueError("No context found for the view. Please use respond() or send() before calling refresh().")
 
-        c = self.__pages[self.__current_page].build_page()
+        c = await self.__pages[self.__current_page].build_page()
         c["view"] = self.__view.copy() + self.__pages[self.__current_page].get_page_view
 
         await self.get_view.get_ctx.edit(
