@@ -20,7 +20,7 @@ def setup(bot: Bot):
 
     @bot.command()
     async def test(ctx):
-        pagination = Pagination()
+        pagination = Pagination(timeout=10, disabled_on_timeout=True)
         pagination.add_page(content="This is the first page")
         pagination.add_page(content=make_content, args_content=("arg1", "arg2"))
         pagination.add_page(content="This is the third page", embed=make_embed)

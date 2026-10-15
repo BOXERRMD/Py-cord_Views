@@ -7,9 +7,11 @@
     <option name="selectedModelId" value="auto" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="88fa8df9-7cb6-45b5-89e7-f6133c57728d" name="Changes" comment=".">
+    <list default="true" id="88fa8df9-7cb6-45b5-89e7-f6133c57728d" name="Changes" comment="Add async function support to build content, embeds and files in pages for the Pagination">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pycordViews/pagination/pagination_view.py" beforeDir="false" afterPath="$PROJECT_DIR$/pycordViews/pagination/pagination_view.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/setup.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pycordViews/views/easy_modified_view.py" beforeDir="false" afterPath="$PROJECT_DIR$/pycordViews/views/easy_modified_view.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test_commandes.py" beforeDir="false" afterPath="$PROJECT_DIR$/test_commandes.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -73,7 +75,7 @@
   <component name="ProjectSessionTemplates">
     <option name="panelTemplate">
       <template>
-        <option name="modeId" value="Agent" />
+        <option name="modeId" value="Ask" />
         <option name="model">
           <model>
             <option name="modelType" value="builtin_id" />
@@ -216,7 +218,31 @@
       <option name="project" value="LOCAL" />
       <updated>1791554916355</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="Fix bug">
+      <option name="closed" value="true" />
+      <created>1791555214690</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1791555214690</updated>
+    </task>
+    <task id="LOCAL-00009" summary="Add pass arguments to content/embed/file function set for Pages">
+      <option name="closed" value="true" />
+      <created>1791914951116</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1791914951117</updated>
+    </task>
+    <task id="LOCAL-00010" summary="Add async function support to build content, embeds and files in pages for the Pagination">
+      <option name="closed" value="true" />
+      <created>1792078163544</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1792078163544</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -240,7 +266,10 @@
     <MESSAGE value="Allow functions un pagination pages to built it" />
     <MESSAGE value="Update" />
     <MESSAGE value="." />
-    <option name="LAST_COMMIT_MESSAGE" value="." />
+    <MESSAGE value="Fix bug" />
+    <MESSAGE value="Add pass arguments to content/embed/file function set for Pages" />
+    <MESSAGE value="Add async function support to build content, embeds and files in pages for the Pagination" />
+    <option name="LAST_COMMIT_MESSAGE" value="Add async function support to build content, embeds and files in pages for the Pagination" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

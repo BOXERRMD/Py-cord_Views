@@ -4,6 +4,7 @@ from discord.abc import GuildChannel
 from discord.ui import View, Item
 from typing import Union, Callable, TYPE_CHECKING, Optional, Any, TypeVar
 from inspect import iscoroutinefunction
+from copy import deepcopy
 
 from .errors import CustomIDNotFound, CoroutineError
 
@@ -379,15 +380,16 @@ class EasyModifiedViews(View):
 
     def copy(self) -> EasyModifiedViews:
         """
-        Return an exact copy of the view. All mutable object in the view is a new object
+        Return a copy of the view. Item are same references to the current view.
         """
         e = EasyModifiedViews(timeout=self.__timeout, disabled_on_timeout=self.__disabled_on_timeout).add_items(*self.items)
+
         for i in self.items:
             item_id = i.custom_id
             e.set_callable(item_id,
                            _callable=self.get_callable(item_id),
-                           data=self.get_callable_data(item_id),
-                           autorised_roles=self.get_autorised_roles(item_id),
+                           data=deepcopy(self.get_callable_data(item_id)),
+                           autorised_roles=deepcopy(self.get_autorised_roles(item_id)),
                            autorised_key=self.get_autorised_key(item_id))
         return e
 

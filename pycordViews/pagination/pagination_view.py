@@ -113,6 +113,9 @@ class Pagination:
 
             # Update the current page based on the button pressed
 
+        if interaction.view is not None:
+            interaction.view.stop()
+
         if interaction.custom_id == 'back+':  # Go to the first page
             self.__current_page = 0
 
